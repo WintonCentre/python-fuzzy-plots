@@ -10,7 +10,7 @@ import plotly.graph_objs as go
 
 # hard coded e for now
 e = 0.025
-e_offset = 0.001 # Fixes slight mis-alignment in plotly drawing
+e_offset = 0 # Fixes slight mis-alignment in plotly drawing
 
 x_values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60]
 
@@ -103,28 +103,33 @@ class FuzzyPlotly:
 
     def plot(self):
 
-        # simple gradient green
-        fillcolor = {
-            "fill01": "rgba(141,203,160, 0.8)",
-            "fill02": "rgba(141,203,160, 0.5)",
-            "fill03": "rgba(141,203,160, 0.2)",
-        }
-
         # simple gradient blue
+        # fillcolor = {
+        #     "fill01_fuzz": "rgba(32,74,135, 0.9)",
+        #     "fill01": "rgba(32,74,135, 1)",
+        #
+        #     "fill02_fuzz_up": "rgba(32,74,135, 0.8)",
+        #     "fill02": "rgba(32,74,135, 0.65)",
+        #     "fill02_fuzz_down": "rgba(32,74,135, 0.5)",
+        #
+        #
+        #     "fill03_fuzz": "rgba(32,74,135, 0.35)",
+        #     "fill03": "rgba(32,74,135, 0.2)",
+        #     # Same
+        # }
+
+        # Same as above bug in hex and no opacitycolo
         fillcolor = {
+            "fill01_fuzz": "#355B92",
+            "fill01": "#204A87",
 
-            "fill01_fuzz": "rgba(32,74,135, 0.9)",
-            "fill01": "rgba(32,74,135, 1)",
+            "fill02_fuzz_up": "#4C6E9F",
+            "fill02": "#6D89B1",
+            "fill02_fuzz_down": "#8FA4C3",
 
-            "fill02_fuzz_up": "rgba(32,74,135, 0.8)",
-            "fill02": "rgba(32,74,135, 0.65)",
-            "fill02_fuzz_down": "rgba(32,74,135, 0.5)",
-
-
-            "fill03_fuzz": "rgba(32,74,135, 0.35)",
-            "fill03": "rgba(32,74,135, 0.2)",
+            "fill03_fuzz": "#B1C0D5",
+            "fill03": "#D2DBE7",
             # Same
-
         }
 
         # vir
@@ -139,97 +144,118 @@ class FuzzyPlotly:
 
         # Create areas.
 
-        # mean = go.Scatter(
-        #     x = self.generate_x_line_data(),
-        #     y = self.generate_y_line_data(0.5, 0, 0.01),
-        #     mode = 'lines',
-        #     name = 'mean',
-        # )
+        medium = go.Scatter(
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(0.5, 0, 0.01),
+            mode='lines',
+            name='medium',
+        )
 
-        # ci = [0.025, 0.2, 0.35, 0.5, 0.65, 0.8, 0.975]
+        # ci=[0.025, 0.2, 0.35, 0.5, 0.65, 0.8, 0.975]
+
         area01 = go.Scatter(
-            x = self.generate_x_line_data(),
-            y = self.generate_y_line_data(0.8875, 0.0875, 0.08125-e+e_offset),
-            mode = 'markers',
-            name = '95%',
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(0.8875, 0.0875, 0.08125-e+e_offset),
+            mode='lines',
+            legendgroup='group 95%',
+            name='95%',
             fill='tozeroy',
             fillcolor=fillcolor["fill03"],
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
+            line={'color': fillcolor["fill03"], 'width': 0.5}
         )
 
         e_area01_lower = go.Scatter(
-            x = self.generate_x_line_data(),
-            y = self.generate_y_line_data(0.80625, e, 0+e_offset),
-            mode = 'markers',
-            name = '95% lower',
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(0.80625, e, 0+e_offset),
+            mode='lines',
+            legendgroup='group 95%',
+            # name='95% lower',
+            showlegend=False,
             fill='tozeroy',
             fillcolor=fillcolor["fill03_fuzz"],
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
+            line={'color': fillcolor["fill03_fuzz"], 'width': 0.5}
         )
 
         e_area02_upper = go.Scatter(
-            x = self.generate_x_line_data(),
-            y = self.generate_y_line_data(0.80625, 0, e+e_offset),
-            mode = 'markers',
-            name = '60% upper',
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(0.80625, 0, e+e_offset),
+            mode='lines',
+            legendgroup='group 60%',
+            # name='60% upper',
+            showlegend=False,
             fill='tozeroy',
             fillcolor=fillcolor["fill02_fuzz_down"],
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
+            line={'color': fillcolor["fill02_fuzz_down"], 'width': 0.5}
         )
 
         area02 = go.Scatter(
-            x = self.generate_x_line_data(),
-            y = self.generate_y_line_data(0.725, 0.08125-e, 0.1125-e+e_offset),
-            mode = 'markers',
-            name = '60%',
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(0.725, 0.08125-e, 0.1125-e+e_offset),
+            mode='lines',
+            legendgroup='group 60%',
+            name='60%',
             fill='tozeroy',
             fillcolor=fillcolor["fill02"],
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
+            line={'color': fillcolor["fill02"], 'width': 1}
         )
 
         e_area02_lower = go.Scatter(
-            x = self.generate_x_line_data(),
-            y = self.generate_y_line_data(0.6125, e, 0+e_offset),
-            mode = 'markers',
-            name = '60% lower',
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(0.6125, e, 0+e_offset),
+            mode='lines',
+            legendgroup='group 60%',
+            # name='60% lower',
+            showlegend=False,
             fill='tozeroy',
             fillcolor=fillcolor["fill02_fuzz_up"],
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
+            line={'color': fillcolor["fill02_fuzz_up"], 'width': 1}
         )
 
         e_area03_upper = go.Scatter(
-            x = self.generate_x_line_data(),
-            y = self.generate_y_line_data(0.6125, 0, e+e_offset),
-            mode = 'markers',
-            name = '30% upper',
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(0.6125, 0, e+e_offset),
+            mode='lines',
+            legendgroup='group 30%',
+            # name='30% upper',
+            showlegend=False,
             fill='tozeroy',
             fillcolor= fillcolor["fill01_fuzz"],
             # fillcolor= "#AAA", #fillcolor["fill01_fuzz"]
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
+            line={'color': fillcolor["fill01_fuzz"], 'width': 1}
         )
 
         area03 = go.Scatter(
-            x = self.generate_x_line_data(),
-            y = self.generate_y_line_data(0.5, 0.1125-e, 0.1125-e),
-            mode = 'markers',
-            name = '30%',
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(0.5, 0.1125-e, 0.1125-e),
+            mode='lines',
+            legendgroup='group 30%',
+            name='30%',
             fill='tozeroy',
             fillcolor=fillcolor["fill01"],
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
+            line={'color': fillcolor["fill01"], 'width': 0.5}
         )
 #0.025
         e_area03_lower = go.Scatter(
-            x = self.generate_x_line_data(),
-            y = self.generate_y_line_data(0.3875, e+e_offset, 0),
-            mode = 'markers',
-            name = '60% lower',
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(0.3875, e+e_offset, 0),
+            mode='markers',
+            legendgroup='group 30%',
+            # name='30% lower',
+            showlegend=False,
             fill='tozeroy',
             fillcolor=fillcolor["fill01_fuzz"],
             hoverinfo='none',
@@ -237,10 +263,12 @@ class FuzzyPlotly:
         )
 
         e_area04_upper = go.Scatter(
-            x = self.generate_x_line_data(),
-            y = self.generate_y_line_data(0.3875, 0+e_offset, e),
-            mode = 'markers',
-            name = '30% upper',
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(0.3875, 0+e_offset, e),
+            mode='markers',
+            legendgroup='group 60%',
+            # name='60% upper',
+            showlegend=False,
             fill='tozeroy',
             fillcolor=fillcolor["fill02_fuzz_up"],
             hoverinfo='none',
@@ -248,10 +276,12 @@ class FuzzyPlotly:
         )
 
         area04 = go.Scatter(
-            x = self.generate_x_line_data(),
-            y = self.generate_y_line_data(0.275, 0.1125-e+e_offset, 0.08125-e),
-            mode = 'markers',
-            name = '60%',
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(0.275, 0.1125-e+e_offset, 0.08125-e),
+            mode='markers',
+            legendgroup='group 60%',
+            name='60%',
+            showlegend=False,
             fill='tozeroy',
             fillcolor=fillcolor["fill02"],
             hoverinfo='none',
@@ -259,10 +289,12 @@ class FuzzyPlotly:
         )
 
         e_area04_lower = go.Scatter(
-            x = self.generate_x_line_data(),
-            y = self.generate_y_line_data(0.19375, e+e_offset, 0),
-            mode = 'markers',
-            name = '60% lower',
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(0.19375, e+e_offset, 0),
+            mode='markers',
+            legendgroup='group 60%',
+            name='60% lower',
+            showlegend=False,
             fill='tozeroy',
             fillcolor=fillcolor["fill02_fuzz_down"],
             hoverinfo='none',
@@ -270,10 +302,12 @@ class FuzzyPlotly:
         )
 
         e_area05_upper = go.Scatter(
-            x = self.generate_x_line_data(),
-            y = self.generate_y_line_data(0.19375, 0+e_offset, e),
-            mode = 'markers',
-            name = '30% upper',
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(0.19375, 0+e_offset, e),
+            mode='markers',
+            legendgroup='group 95%',
+            name='95% upper',
+            showlegend=False,
             fill='tozeroy',
             fillcolor=fillcolor["fill03_fuzz"],
             hoverinfo='none',
@@ -281,10 +315,12 @@ class FuzzyPlotly:
         )
 
         area05 = go.Scatter(
-            x = self.generate_x_line_data(),
-            y = self.generate_y_line_data(0.1125, 0.08125-e+e_offset, 0.0875),
-            mode = 'markers',
-            name = '95%',
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(0.1125, 0.08125-e+e_offset, 0.0875),
+            mode='markers',
+            legendgroup='group 95%',
+            name='95%',
+            showlegend=False,
             fill='tozeroy',
             fillcolor=fillcolor["fill03"],
             hoverinfo='none',
@@ -296,7 +332,7 @@ class FuzzyPlotly:
             e_area02_upper, area02, e_area02_lower,
             e_area03_upper, area03, e_area03_lower,
             e_area04_upper, area04, e_area04_lower,
-            e_area05_upper, area05
+            e_area05_upper, area05, medium,
         ]
 
 
@@ -313,5 +349,6 @@ class FuzzyPlotly:
         # iplot(data, filename='fuzzy_dev_plt',  config={'displayModeBar': False})
 
 
-my_plt = FuzzyPlotly(x_values, y_values, std)
-my_plt.plot()
+if __name__ == '__main__':
+    my_plt = FuzzyPlotly(x_values, y_values, std)
+    my_plt.plot()
