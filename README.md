@@ -2,10 +2,10 @@
 Fuzzy Plots using python and plotly showing uncertainty. Similar to (x chart?) by Office for National Statistics.
 (TODO: insert pic)
 
-Creates fuzzy boundaries around uncertainty at 30%, 60%, 95%(?) using percent point function.
+Creates fuzzy boundaries around confidence interval at 30%, 60%, 95%.
 
 ## Prerequisites
-Python 3.x
+Python 3.4+
 
 ## Quick start
 Import module and use sample values to create a plot.
@@ -13,22 +13,29 @@ Import module and use sample values to create a plot.
 In terminal type
 `pip install .`
 
-Create and run
+Create a file "example.py" with the code below
 ```
-from fuzzy.fuzzy_main import FuzzyPlotly, x_values, y_values, std
+# Import the module
+from fuzzy.fuzzy_main import FuzzyPlotly, x_sample_values, y_sample_values, std
 
-my_plt = FuzzyPlotly(x_values, y_values, std)
+# Create a plot using sample values.
+my_plt = FuzzyPlotly(x_sample_values, y_sample_values, std)
 my_plt.plot()
 ```
+In terminal execute the file.
+
+`python example.py`
 
 ## Getting started
 
 ### (Optional) - Create virtual environment.
-1. Create virtual environment
+_1. Go to project directory_
+
+_2. Create a virtual environment_
 
 `python3 -m venv .venv`
 
-2. Activate virtual environment
+_3. Activate virtual environment_
 
 `. .venv/bin/activate`
 
@@ -36,21 +43,26 @@ my_plt.plot()
 ### Installation
 
 Install module using pip.
-
-`pip install .`
+In terminal type: `pip install .`
  
- (TODO: `pip install fuzzyplots`)
-
-Import the module
-
-`from fuzzy.fuzzy_main import *`
-
-Create a plot using sample values.
-
-`my_plt = FuzzyPlotly(x_values, y_values, std, output='offline')`
-`my_plt.plot()`
+ (TODO FUTURE: `pip install fuzzyplots`)
 
 ### Usage
+
+#### Running
+
+Create a file "example.py" with the code below
+```
+# Import the module
+from fuzzy.fuzzy_main import FuzzyPlotly, x_sample_values, y_sample_values, std
+
+# Create a plot using sample values.
+my_plt = FuzzyPlotly(x_sample_values, y_sample_values, std)
+my_plt.plot()
+```
+In terminal execute the file.
+
+`python example.py`
 
 #### Basic Plot
 FuzzyPlotly(x_list, y_list, std_list, figs=[], output='auto')
@@ -62,10 +74,9 @@ x_list, y_list, std_list are list values to plot.
 #### Additional plot
 FuzzyPlotly allows user to add any plots plotly supports.
 
-
-First create a plotly figure
-
-`new_fig_1 = {
+```
+# First create a plotly figure
+new_fig_1 = {
          'marker': {'color': 'red', 'size': 10, 'symbol': 104},
          'mode': 'markers+lines',
          'name': '1st Trace',
@@ -73,11 +84,10 @@ First create a plotly figure
          'type': 'scatter',
          'x': [1, 2, 3],
          'y': [4, 2, 1]
-     }`
+     }
 
-(Optional): Create another plotly figure
-
-`new_fig_2 = {
+# Create another plotly figure (Optional)
+new_fig_2 = {
          'marker': {'color': 'red', 'size': 10, 'symbol': 104},
          'mode': 'markers+lines',
          'name': '1st Trace',
@@ -85,33 +95,32 @@ First create a plotly figure
          'type': 'scatter',
          'x': [5, 6, 7],
          'y': [3, 4, 1]
-     }`
-
+     }
+```
 
 ##### Additional plot - Method 1
 figs allow user to add additional plot(s). Pass it as list to figs.
 
-Pass figures to figs
-
-`my_plt = FuzzyPlotly([1,2,3,4,5], [2,6,8,6,5], [1,2,3,2,2], figs=[new_fig_1, new_fig_2])`
-
-`my_plt.plot()`
+```
+# Pass plots created above as parameter to figs
+my_plt = FuzzyPlotly([1,2,3,4,5], [2,6,8,6,5], [1,2,3,2,2], figs=[new_fig_1, new_fig_2])
+my_plt.plot()
+```
 
 ##### Additional plot - Method 2
 Alternatively user can simple take out plotly data structure FuzzyPlotly has generated using .data() method plot it standard plotly way.
 
-Get fuzzy data through .data() method
+```
+# Get fuzzy data through .data() method
+fuzzy_data = FuzzyPlotly([1,2,3,4,5], [2,6,8,6,5], [1,2,3,2,2]).data()
 
-`fuzzy_data = FuzzyPlotly([1,2,3,4,5], [2,6,8,6,5], [1,2,3,2,2]).data()`
+# Append additional plot(s) to the list
+my_data = fuzzy_data + [new_fig_1, new_fig_2]
 
+# Plot using plotly
+plotly.offline.plot(data, filename='fuzzy_dev_plt')
 
-Append additional plot(s) to the list
-
-`data = fuzzy_data + [new_fig_1, new_fig_2]`
-
-Plot using plotly
-
-`plotly.offline.plot(data, filename='fuzzy_dev_plt')`
+```
 
 #### Plotting options
 FuzzyPlotly supports offline, online and jupyter notebook. It automatically defaults to offline mode and detect running of jupyter notebook (ipython).
