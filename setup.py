@@ -9,6 +9,6 @@ setup(
       author='Jin Park',
       author_email='jp835@cam.ac.uk',
       license='MIT',
-      packages=['fuzzy'],
+      packages=['fuzzy', 'plotly', 'scipy'],
       zip_safe=True
 )

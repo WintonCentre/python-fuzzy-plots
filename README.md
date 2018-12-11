@@ -4,21 +4,34 @@ Fuzzy Plots using python and plotly showing uncertainty. Similar to (x chart?) b
 
 Creates fuzzy boundaries around uncertainty at 30%, 60%, 95%(?) using percent point function.
 
+## Prerequisites
+Python 3.x
+
 ## Quick start
 Import module and use sample values to create a plot.
 
+In terminal type
 `pip install .`
 
-`from fuzzy.fuzzy_main import *`
+Create and run
+```
+from fuzzy.fuzzy_main import FuzzyPlotly, x_values, y_values, std
 
-`my_plt = FuzzyPlotly(x_values, y_values, std, output='offline')`
-
-`my_plt.plot()`
+my_plt = FuzzyPlotly(x_values, y_values, std)
+my_plt.plot()
+```
 
 ## Getting started
 
-### Prerequisites
-Python 3.x
+### (Optional) - Create virtual environment.
+1. Create virtual environment
+
+`python3 -m venv .venv`
+
+2. Activate virtual environment
+
+`. .venv/bin/activate`
+
 
 ### Installation
 
