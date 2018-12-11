@@ -9,11 +9,11 @@ Import module and use sample values to create a plot.
 
 `pip install .`
 
-`from fuzzy.fuzzy_main import *`
-
-`my_plt = FuzzyPlotly(x_values, y_values, std, output='offline')`
-
-`my_plt.plot()`
+```
+from fuzzy.fuzzy_main import *
+my_plt = FuzzyPlotly(x_values, y_values, std, output='offline')`
+my_plt.plot()
+```
 
 ## Getting started
 
