@@ -39,11 +39,12 @@ def read_csv(csv_name, column_x, column_y, std):
 # Optional future params, number of intervals, color scheme (dict?), fuzziness,
 # TODO: Add credential files as argument.
 class FuzzyPlotly:
-    def __init__(self, x_list, y_list, std_list):
+    def __init__(self, x_list, y_list, std_list, figs=[]):
         plotly.tools.set_credentials_file(username='oneGene', api_key='JvxeS4ghBsrIRKsXYfTf')
         self.x_list = x_list
         self.y_list = y_list
         self.std_list = std_list
+        self.figs = figs
 
     # function which takes in mean, std (optional configs?) and returns
 
@@ -130,6 +131,8 @@ class FuzzyPlotly:
             "fill03_fuzz": "#B1C0D5",
             "fill03": "#D2DBE7",
             # Same
+
+            "medium": "#EF2929",
         }
 
         # vir
@@ -146,9 +149,11 @@ class FuzzyPlotly:
 
         medium = go.Scatter(
             x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.5, 0, 0.01),
+            y=self.generate_y_line_data(0.5, -0.01, 0.01),
             mode='lines',
             name='medium',
+            fillcolor=fillcolor["medium"],
+            line={'color': fillcolor["medium"], 'width': 1}
         )
 
         # ci=[0.025, 0.2, 0.35, 0.5, 0.65, 0.8, 0.975]
@@ -252,7 +257,7 @@ class FuzzyPlotly:
         e_area03_lower = go.Scatter(
             x=self.generate_x_line_data(),
             y=self.generate_y_line_data(0.3875, e+e_offset, 0),
-            mode='markers',
+            mode='lines',
             legendgroup='group 30%',
             # name='30% lower',
             showlegend=False,
@@ -260,12 +265,13 @@ class FuzzyPlotly:
             fillcolor=fillcolor["fill01_fuzz"],
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
+            line={'color': fillcolor["fill01_fuzz"], 'width': 1}
         )
 
         e_area04_upper = go.Scatter(
             x=self.generate_x_line_data(),
             y=self.generate_y_line_data(0.3875, 0+e_offset, e),
-            mode='markers',
+            mode='lines',
             legendgroup='group 60%',
             # name='60% upper',
             showlegend=False,
@@ -273,12 +279,13 @@ class FuzzyPlotly:
             fillcolor=fillcolor["fill02_fuzz_up"],
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
+            line={'color': fillcolor["fill02_fuzz_up"], 'width': 1}
         )
 
         area04 = go.Scatter(
             x=self.generate_x_line_data(),
             y=self.generate_y_line_data(0.275, 0.1125-e+e_offset, 0.08125-e),
-            mode='markers',
+            mode='lines',
             legendgroup='group 60%',
             name='60%',
             showlegend=False,
@@ -286,12 +293,13 @@ class FuzzyPlotly:
             fillcolor=fillcolor["fill02"],
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
+            line={'color': fillcolor["fill02"], 'width': 1}
         )
 
         e_area04_lower = go.Scatter(
             x=self.generate_x_line_data(),
             y=self.generate_y_line_data(0.19375, e+e_offset, 0),
-            mode='markers',
+            mode='lines',
             legendgroup='group 60%',
             name='60% lower',
             showlegend=False,
@@ -299,12 +307,13 @@ class FuzzyPlotly:
             fillcolor=fillcolor["fill02_fuzz_down"],
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
+            line={'color': fillcolor["fill02_fuzz_down"], 'width': 1}
         )
 
         e_area05_upper = go.Scatter(
             x=self.generate_x_line_data(),
             y=self.generate_y_line_data(0.19375, 0+e_offset, e),
-            mode='markers',
+            mode='lines',
             legendgroup='group 95%',
             name='95% upper',
             showlegend=False,
@@ -312,12 +321,13 @@ class FuzzyPlotly:
             fillcolor=fillcolor["fill03_fuzz"],
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
+            line={'color': fillcolor["fill03_fuzz"], 'width': 1}
         )
 
         area05 = go.Scatter(
             x=self.generate_x_line_data(),
             y=self.generate_y_line_data(0.1125, 0.08125-e+e_offset, 0.0875),
-            mode='markers',
+            mode='lines',
             legendgroup='group 95%',
             name='95%',
             showlegend=False,
@@ -325,6 +335,7 @@ class FuzzyPlotly:
             fillcolor=fillcolor["fill03"],
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
+            line={'color': fillcolor["fill03"], 'width': 1}
         )
 
         data = [
@@ -333,7 +344,10 @@ class FuzzyPlotly:
             e_area03_upper, area03, e_area03_lower,
             e_area04_upper, area04, e_area04_lower,
             e_area05_upper, area05, medium,
-        ]
+        ] + self.figs
+
+        print(data)
+        print(self.figs)
 
 
         # Online plotly server version. Doesn't seem to be able to turn displayModeBar off.
@@ -350,5 +364,35 @@ class FuzzyPlotly:
 
 
 if __name__ == '__main__':
-    my_plt = FuzzyPlotly(x_values, y_values, std)
+
+    new_fig_a_1 = {
+        'marker': {'color': 'red', 'size': 10, 'symbol': 104},
+        'mode': 'markers+lines',
+        'name': '1st Trace',
+        'text': ['one', 'two', 'three'],
+        'type': 'scatter',
+        'x': [1, 2, 3],
+        'y': [4, 5, 6]
+    }
+
+    new_fig_a_2 = {
+        'marker': {'color': 'green', 'size': 5, 'symbol': 104},
+        'mode': 'markers+lines',
+        'name': '1st Trace',
+        'text': ['one', 'two', 'three'],
+        'type': 'scatter',
+        'x': [8, 9, 10],
+        'y': [4, 8, 1]
+    }
+
+    new_fig2 = go.Scatter(x=[4,5,6], y=[4,5,6], marker={'color': 'red', 'symbol': 104, 'size': 10},  mode="markers+lines",  text=["one","two","three"])
+    new_fig3 = go.Scatter(
+        x=[4,5,6],
+        y=[4,5,9],
+        marker={'color': 'red', 'symbol': 104, 'size': 10},
+        mode="markers+lines",
+        text=["one","two","three"]
+    )
+
+    my_plt = FuzzyPlotly(x_values, y_values, std, figs=[new_fig2, new_fig3])
     my_plt.plot()
