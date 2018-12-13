@@ -26,6 +26,16 @@ In terminal execute the file.
 
 `python example.py`
 
+## Jupyter Notebook
+Fastest way to see examples are to startup jupyer notebook and running "sample.ipynb" provided.
+
+In terminal:
+```
+pip install jupyter
+
+jupyter notebook
+``` 
+
 ## Getting started
 
 ### (Optional) - Create virtual environment.
@@ -33,10 +43,12 @@ _1. Go to project directory_
 
 _2. Create a virtual environment_
 
+In terminal: 
 `python3 -m venv .venv`
 
 _3. Activate virtual environment_
 
+In terminal: 
 `. .venv/bin/activate`
 
 

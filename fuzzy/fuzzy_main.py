@@ -357,7 +357,7 @@ if __name__ == '__main__':
         y=[4,5,9],
         marker={'color': 'red', 'symbol': 104, 'size': 10},
         mode="markers+lines",
-        text=["one","two","three"]
+        text=["one", "two", "three"]
     )
 
     # Plotting directly
