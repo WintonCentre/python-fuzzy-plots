@@ -33,12 +33,13 @@ def read_csv(csv_name, column_x, column_y, std):
 # TODO: Add credential files as argument.
 # Output can be 4 different states. offline, online, jupyter, auto
 class FuzzyPlotly:
-    def __init__(self, x_list, y_list, std_list, figs=[], output='auto'):
+    def __init__(self, x_list, y_list, std_list, layout={}, figs=[], output='auto'):
         #TODO: User should set this themself if they want online functionality
         plotly.tools.set_credentials_file(username='oneGene', api_key='JvxeS4ghBsrIRKsXYfTf')
         self.x_list = x_list
         self.y_list = y_list
         self.std_list = std_list
+        self.layout = layout
         self.figs = figs
 
         # Automatically figures out if it's running in ipython. If not
@@ -314,15 +315,16 @@ class FuzzyPlotly:
 
     def plot(self):
         data = self.data()
+        fig = go.Figure(data=data, layout=self.layout)
 
         if self.output == 'offline':
-            plotly.offline.plot(data, filename='fuzzy_dev_plt',  config={'displayModeBar': False})
+            plotly.offline.plot(fig, config={'displayModeBar': False},)
         if self.output == 'online':
             # Online plotly server version. Doesn't seem to be able to turn displayModeBar off.
-            py.plot(data, filename='fuzzy_dev_plt',  config={'displayModeBar': False})
+            py.plot(fig, filename='fuzzy_dev_plt',  config={'displayModeBar': False})
         if self.output == 'jupyter':
             init_notebook_mode(connected=True)
-            iplot(data, filename='fuzzy_dev_plt',  config={'displayModeBar': False})
+            iplot(fig, filename='fuzzy_dev_plt',  config={'displayModeBar': False})
 
 
 if __name__ == '__main__':
@@ -359,9 +361,9 @@ if __name__ == '__main__':
     )
 
     # Plotting directly
-    my_plt = FuzzyPlotly(x_sample_values, y_sample_values, std, output='online')
+    # my_plt = FuzzyPlotly(x_sample_values, y_sample_values, std, output='online')
     # my_plt = FuzzyPlotly(x_sample_values, y_sample_values, std, figs=[new_fig2, new_fig3])
-    my_plt.plot()
+    # my_plt.plot()
 
     # Taking out data and plotting independently
     # data = my_plt.data()
@@ -369,3 +371,25 @@ if __name__ == '__main__':
     # data = data + [new_fig_a_1, new_fig2]
     # plotly.offline.plot(data, filename='fuzzy_dev_plt',  config={'displayModeBar': False})
     # py.plot(data, filename='my_own_plot', config={'displayModeBar': False})
+
+    layout = go.Layout(
+        title='Unemployment between 2012 and 2017',
+        xaxis=dict(
+            title='Dates',
+            titlefont=dict(
+                family='Courier New, monospace',
+                size=18,
+                color='#7f7f7f'
+            )
+        ),
+        yaxis=dict(
+            title='Unemployment rate',
+            titlefont=dict(
+                family='Courier New, monospace',
+                size=18,
+                color='#7f7f7f'
+            )
+        )
+    )
+
+    FuzzyPlotly(x_sample_values, y_sample_values, std, layout=layout, output='online').plot()
