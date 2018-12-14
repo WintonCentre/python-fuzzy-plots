@@ -3,16 +3,82 @@ import plotly.graph_objs as go
 import plotly
 from scipy.stats import norm
 
+#TODO: THROW ERROR WHEN X-AXIS AND Y-AXIS Column counts don't match or my code makes x-axis column match.
 
 # juypter notebook version
 from plotly.offline import init_notebook_mode, iplot
 import plotly.graph_objs as go
 
 # hard coded e for now
-e = 0.025
+e = 0.05
+# e = 0
 e_offset = 0 # Fixes slight mis-alignment in plotly drawing
 
-x_sample_values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60]
+# x_sample_values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60]
+
+x_sample_values = ["2013-07",
+                   "2013-08",
+                   "2013-09",
+                   "2013-10",
+                   "2013-11",
+                   "2013-12",
+                   "2014-01",
+                   "2014-02",
+                   "2014-03",
+                   "2014-04",
+                   "2014-05",
+                   "2014-06",
+                   "2014-07",
+                   "2014-08",
+                   "2014-09",
+                   "2014-10",
+                   "2014-11",
+                   "2014-12",
+                   "2015-01",
+                   "2015-02",
+                   "2015-03",
+                   "2015-04",
+                   "2015-05",
+                   "2015-06",
+                   "2015-07",
+                   "2015-08",
+                   "2015-09",
+                   "2015-10",
+                   "2015-11",
+                   "2015-12",
+                   "2016-01",
+                   "2016-02",
+                   "2016-03",
+                   "2016-04",
+                   "2016-05",
+                   "2016-06",
+                   "2016-07",
+                   "2016-08",
+                   "2016-09",
+                   "2016-10",
+                   "2016-11",
+                   "2016-12",
+                   "2017-01",
+                   "2017-02",
+                   "2017-03",
+                   "2017-04",
+                   "2017-05",
+                   "2017-06",
+                   "2017-07",
+                   "2017-08",
+                   "2017-09",
+                   "2017-10",
+                   "2017-11",
+                   "2017-12",
+                   "2018-01",
+                   "2018-02",
+                   "2018-03",
+                   "2018-04",
+                   "2018-05",
+                   "2018-06",
+                   "2018-07",]
+
+
 
 y_sample_values = [8.337618963728, 8.279171746205, 8.203023291325001, 8.16982661854, 8.097634166936, 8.008366857893, 8.058186936088001, 7.885838698153, 7.858881576058001, 7.855567493386, 7.820595855792, 7.818122337445001, 7.828704432914, 7.980026665154999, 7.849850895981, 7.79839463565, 7.75388054972, 7.746002782859, 7.668407780941, 7.690985902007999, 7.612645534365, 7.3747395662390005, 7.170755621192, 7.227406558807, 7.171694338855, 6.893654974382, 6.762184038944, 6.598652448781, 6.419642868308999, 6.285297334109, 6.1413396095340005, 6.007282987197, 5.963297915327, 5.9641084307379995, 5.871371751667, 5.713943557774, 5.6704875369000005, 5.586620413797999, 5.550096812713, 5.518101872629, 5.607761950272, 5.6011292164699995, 5.514911517329001, 5.373080972737, 5.288693295291, 5.184773292915, 5.076842783398, 5.099483022613001, 5.087590042512001, 5.116303933252, 5.086588537155, 5.022712701151001, 4.934685111503001, 4.913662261302, 4.885593397848, 4.948802059784, 4.801996126307, 4.840341849932, 4.801265584408, 4.776618718601, 4.7377872479250005,]
 
@@ -110,6 +176,21 @@ class FuzzyPlotly:
 
             "median": "#EF2929",
         }
+
+        # fillcolor = {
+        #     "fill01_fuzz": "#355B92",
+        #     "fill01": "#E0ECE6",
+        #
+        #     "fill02_fuzz_up": "#C6D9CF",
+        #     "fill02": "#A8C6B6",
+        #     "fill02_fuzz_down": "#9FBFAF",
+        #
+        #     "fill03_fuzz": "#AFC9BC",
+        #     "fill03": "#A3C2B3",
+        #     # Same
+        #
+        #     "median": "#EF2929",
+        # }
 
         # Create areas.
 
@@ -321,10 +402,10 @@ class FuzzyPlotly:
             plotly.offline.plot(fig, config={'displayModeBar': False},)
         if self.output == 'online':
             # Online plotly server version. Doesn't seem to be able to turn displayModeBar off.
-            py.plot(fig, filename='fuzzy_dev_plt',  config={'displayModeBar': False})
+            py.plot(fig, config={'displayModeBar': False})
         if self.output == 'jupyter':
             init_notebook_mode(connected=True)
-            iplot(fig, filename='fuzzy_dev_plt',  config={'displayModeBar': False})
+            iplot(fig, config={'displayModeBar': False})
 
 
 if __name__ == '__main__':
@@ -374,11 +455,16 @@ if __name__ == '__main__':
 
     layout = go.Layout(
         title='Unemployment between 2012 and 2017',
+        titlefont=dict(
+            family='Courier New, monospace',
+            size=30,
+            color='#7f7f7f'
+        ),
         xaxis=dict(
             title='Dates',
             titlefont=dict(
                 family='Courier New, monospace',
-                size=18,
+                size=20,
                 color='#7f7f7f'
             )
         ),
@@ -386,10 +472,10 @@ if __name__ == '__main__':
             title='Unemployment rate',
             titlefont=dict(
                 family='Courier New, monospace',
-                size=18,
+                size=20,
                 color='#7f7f7f'
             )
         )
     )
 
-    FuzzyPlotly(x_sample_values, y_sample_values, std, layout=layout, output='online').plot()
+    FuzzyPlotly(x_sample_values, y_sample_values, std, layout=layout, output='offline').plot()

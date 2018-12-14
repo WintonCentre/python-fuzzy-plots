@@ -134,7 +134,9 @@ plotly.offline.plot(data, filename='fuzzy_dev_plt')
 
 ```
 
-#### Plotting options
+## Other Options
+
+### Plotting options
 FuzzyPlotly supports offline, online and jupyter notebook. It automatically defaults to offline mode and detect running of jupyter notebook (ipython).
 
 Possible parameters for output are "default", "offline", "online", "jupyter"
@@ -159,6 +161,124 @@ To use online mode please add your username/api key from plot.ly at start and ru
 (Refer to plotly documentation for addition information.
  https://plot.ly/python/configuration-options/
 )
+
+### Axis
+#### Date time
+
+
+(TODO: There was more python related site???)
+Use dateutil module to convert to plotly friendly format. 
+https://help.plot.ly/date-format-and-time-series/
+
+Please refer to https://stackabuse.com/converting-strings-to-datetime-in-python/
+
+```
+from dateutil.parser import parse
+
+date_array = [  
+    '2018-06-29 08:15:27.243860',
+    'Jun 28 2018  7:40AM',
+    'Jun 28 2018 at 7:40AM',
+    'September 18, 2017, 22:19:55',
+    'Sun, 05/12/1999, 12:30PM',
+    'Mon, 21 March, 2015',
+    '2018-03-12T10:12:45Z',
+    '2018-06-29 17:08:00.586525+00:00',
+    '2018-06-29 17:08:00.586525+05:00',
+    'Tuesday , 6th September, 2017 at 4:30pm'
+]
+
+for date in date_array:  
+    print('Parsing: ' + date)
+    dt = parse(date)
+    print(dt.date())
+    print(dt.time())
+    print(dt.tzinfo)
+    print('\n')
+```
+Output: 
+```
+$ python3 dateutil-1.py
+Parsing: 2018-06-29 08:15:27.243860  
+2018-06-29  
+08:15:27.243860  
+None
+
+Parsing: Jun 28 2018  7:40AM  
+2018-06-28  
+07:40:00  
+None
+
+Parsing: Jun 28 2018 at 7:40AM  
+2018-06-28  
+07:40:00  
+None
+
+Parsing: September 18, 2017, 22:19:55  
+2017-09-18  
+22:19:55  
+None
+
+Parsing: Sun, 05/12/1999, 12:30PM  
+1999-05-12  
+12:30:00  
+None
+
+Parsing: Mon, 21 March, 2015  
+2015-03-21  
+00:00:00  
+None
+
+Parsing: 2018-03-12T10:12:45Z  
+2018-03-12  
+10:12:45  
+tzutc()
+
+Parsing: 2018-06-29 17:08:00.586525+00:00  
+2018-06-29  
+17:08:00.586525  
+tzutc()
+
+Parsing: 2018-06-29 17:08:00.586525+05:00  
+2018-06-29  
+17:08:00.586525  
+tzoffset(None, 18000)
+
+Parsing: Tuesday , 6th September, 2017 at 4:30pm  
+2017-09-06  
+16:30:00  
+None  
+```
+
+## Labeling
+Pass in plotly layout to customize figure including labels.
+
+
+```
+# Create layout
+layout = go.Layout(
+    title='Unemployment between 2012 and 2017',
+    xaxis=dict(
+        title='Dates',
+        titlefont=dict(
+            family='Courier New, monospace',
+            size=18,
+            color='#7f7f7f'
+        )
+    ),
+    yaxis=dict(
+        title='Unemployment rate',
+        titlefont=dict(
+            family='Courier New, monospace',
+            size=18,
+            color='#7f7f7f'
+        )
+    )
+)
+
+FuzzyPlotly(x_sample_values, y_sample_values, std, layout=layout).plot()
+
+```
 
 # Authors
 
