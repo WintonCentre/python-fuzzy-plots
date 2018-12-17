@@ -93,9 +93,9 @@ class FuzzyPlotly:
         self.ci60p = ci60p
         self.ci60n = ci60n
         self.ci30p = ci30p
-        self.ci30n = ci30n,
-        self.fuzz_size = fuzz_size,
-        self.fuzz_n = fuzz_n,
+        self.ci30n = ci30n
+        self.fuzz_size = fuzz_size
+        self.fuzz_n = fuzz_n
         self.layout = layout
         self.figs = figs
         self.data = []
@@ -156,35 +156,41 @@ class FuzzyPlotly:
         self.data.append(area)
         return area
 
-    # Finds fuzz given size and n.
-    def create_fuzzy_area(self, upper, lower, fuzz_size, fuzz_n):
-        areas_p_95 = test_plot.calc_fuzz_area(self.ci95p, self.ci60p, fuzz_size=fuzz_size)
-        area_per_fuzz = [area/fuzz_n for area in areas_p_95]
+    # Finds fuzz for confidence interval with fuzz size and fuzz n.
+    def create_fuzzy_shape(self, upper, lower, fuzz_size, fuzz_n):
+        areas_upper = self.calc_fuzz_area(upper, lower, fuzz_size=fuzz_size)
+        area_per_fuzz = [area/fuzz_n for area in areas_upper]
         # print(areas_p_95)
         # print(area_per_fuzz)
 
 
         # Create area with all the fuzz and by generating upper and lower of each line
         # Building from Top to bottom
-        # Upper fuzz
+
         for i in range(1, fuzz_n+1):
-            cur_upper = [upper - (area*(i-1)) for (upper, area) in zip(self.ci95p, area_per_fuzz)]
-            cur_lower = [upper - (area*(i)) for (upper, area) in zip(self.ci95p, area_per_fuzz)]
-            self.generate_shape(cur_upper, cur_lower)
+            # Upper fuzz
+            cur_up_upper = [upper - (area*(i-1)) for (upper, area) in zip(upper, area_per_fuzz)]
+            cur_up_lower = [upper - (area*(i)) for (upper, area) in zip(upper, area_per_fuzz)]
+            self.generate_shape(cur_up_upper, cur_up_lower)
 
-        # Lower fuzz - Building from bottom to top
-        for i in range(1, fuzz_n+1):
-            cur_upper = [upper + (area*(i)) for (upper, area) in zip(self.ci60p, area_per_fuzz)]
-            cur_lower = [upper + (area*(i-1)) for (upper, area) in zip(self.ci60p, area_per_fuzz)]
-            self.generate_shape(cur_upper, cur_lower)
+            # Lower fuzz - Building from bottom to top
+            cur_down_upper = [upper + (area*(i)) for (upper, area) in zip(lower, area_per_fuzz)]
+            cur_down_lower = [upper + (area*(i-1)) for (upper, area) in zip(lower, area_per_fuzz)]
+            self.generate_shape(cur_down_upper, cur_down_lower)
 
-
-    # Central Main shape
-        fuzz_p_95_up_lower = [upper - area for (upper, area) in zip(self.ci95p, areas_p_95)]
-        fuzz_p_95_down_upper = [upper + area for (upper, area) in zip(self.ci60p, areas_p_95)]
+        # Central Main shape
+        fuzz_p_95_up_lower = [upper - area for (upper, area) in zip(upper, areas_upper)]
+        fuzz_p_95_down_upper = [upper + area for (upper, area) in zip(lower, areas_upper)]
         self.generate_shape(fuzz_p_95_up_lower, fuzz_p_95_down_upper)
 
-    def data(self):
+    def create_data(self):
+        test_plot.create_fuzzy_shape(upper=self.ci95p, lower=self.ci60p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n)
+        test_plot.create_fuzzy_shape(upper=self.ci60p, lower=self.ci30p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n)
+        test_plot.create_fuzzy_shape(upper=self.ci30p, lower=self.ci30n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n)
+        test_plot.create_fuzzy_shape(upper=self.ci30n, lower=self.ci60n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n)
+        test_plot.create_fuzzy_shape(upper=self.ci60n, lower=self.ci95n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n)
+
+    def datax(self):
 
         fillcolor = {
             "fill01_fuzz": "#355B92",
@@ -475,8 +481,12 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=0.1, fuzz_n=2,
+        fuzz_size=0.4, fuzz_n=10,
                 )
+    test_plot.create_data()
+    test_plot.plot()
+
+
     # # Discrete lines
     # test_plot.generate_shape(y_p_95, y_p_60)
     # test_plot.generate_shape(y_p_60, y_p_30)
@@ -510,6 +520,4 @@ if __name__ == '__main__':
     # # test_plot.generate_shape(y_p_30, y_n_30)
 
 
-    test_plot.create_fuzzy_area(upper="x", lower="x", fuzz_size=0.1, fuzz_n=10)
 
-    test_plot.plot()
