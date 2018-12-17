@@ -3,18 +3,12 @@ import plotly.graph_objs as go
 import plotly
 from scipy.stats import norm
 
-#TODO: THROW ERROR WHEN X-AXIS AND Y-AXIS Column counts don't match or my code makes x-axis column match.
-
-# juypter notebook version
-from plotly.offline import init_notebook_mode, iplot
-import plotly.graph_objs as go
+import pandas as pd
 
 # hard coded e for now
 e = 0.05
 # e = 0
 e_offset = 0 # Fixes slight mis-alignment in plotly drawing
-
-# x_sample_values = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60]
 
 x_sample_values = ["2013-07",
                    "2013-08",
@@ -85,28 +79,26 @@ y_sample_values = [8.337618963728, 8.279171746205, 8.203023291325001, 8.16982661
 std = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
 
-"""
-# Also able to custom label? Number of intervals?
-# Lets stick to 30%, 60%, 95%
-def read_csv(csv_name, column_x, column_y, std):
-    use pandas as quick way to read csv.
-    returns as list column_x, column_y, std
-        
-"""
-
-
 # Optional future params, number of intervals, color scheme (dict?), fuzziness,
-# TODO: Add credential files as argument.
-# Output can be 4 different states. offline, online, jupyter, auto
 class FuzzyPlotly:
-    def __init__(self, x_list, y_list, std_list, layout={}, figs=[], output='auto'):
-        #TODO: User should set this themself if they want online functionality
+    def __init__(self, x_list, y_list,
+                 ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
+                 fuzz_size, fuzz_n,
+                 layout={}, figs=[], output='auto'):
         plotly.tools.set_credentials_file(username='oneGene', api_key='JvxeS4ghBsrIRKsXYfTf')
         self.x_list = x_list
         self.y_list = y_list
-        self.std_list = std_list
+        self.ci95p = ci95p
+        self.ci95n = ci95n
+        self.ci60p = ci60p
+        self.ci60n = ci60n
+        self.ci30p = ci30p
+        self.ci30n = ci30n,
+        self.fuzz_size = fuzz_size,
+        self.fuzz_n = fuzz_n,
         self.layout = layout
         self.figs = figs
+        self.data = []
 
         # Automatically figures out if it's running in ipython. If not
         # Add default value of offline
@@ -114,51 +106,83 @@ class FuzzyPlotly:
             try:
                 get_ipython()
                 self.output = 'jupyter'
+                from plotly.offline import init_notebook_mode, iplot
+                import plotly.graph_objs as go
             except NameError:
                 self.output = 'offline'
         else:
             self.output = output
 
-    # function which takes in mean, std (optional configs?) and returns
+    # # probability is between 0-1
+    # # example p = [0.025, 0.2, 0.35, 0.5, 0.65, 0.8, 0.975]
+    # def generate_interval_point(self, p, center, std, offset=0):
+    #     point = [p+offset]
+    #     boundary_point = norm.ppf(point, loc=center, scale=std)
+    #     # print(f'point: {point}, p: {p}, center: {center}, std: {std}, offset: {offset} ==> boundary_point: {boundary_point}')
+    #     return boundary_point[0]
 
-    # probability is between 0-1
-    # example p = [0.025, 0.2, 0.35, 0.5, 0.65, 0.8, 0.975]
-    def generate_interval_point(self, p, center, std, offset=0):
-        point = [p+offset]
-        boundary_point = norm.ppf(point, loc=center, scale=std)
-        # print(f'point: {point}, p: {p}, center: {center}, std: {std}, offset: {offset} ==> boundary_point: {boundary_point}')
-        return boundary_point[0]
+    def calc_fuzz_area(self, upper, lower, fuzz_size):
+        # area_diff = upper - lower
+        area = [((y1 - y2)*fuzz_size)/2 for (y1, y2) in zip(upper, lower)]
+        return area
 
     # Gives output Plotly can use
-    def generate_y_line_data(self, p, e_upper, e_lower):
+    def generate_y_line_data(self, upper, lower):
         """
-        Given probability, return x and y plotly can use.
+        Creates shape of y values y plotly can use.
         """
-        # I need list of lower values
-        # I need list of upper values
-        # Put them together to feed into plotly scatter
-        y_lower = []
-        y_upper = []
-
-        for i in range(len(self.y_list)):
-            y_lower_point = self.generate_interval_point(p, self.y_list[i], self.std_list[i], -e_lower)
-            y_upper_point = self.generate_interval_point(p, self.y_list[i], self.std_list[i], e_upper)
-            y_lower.append(y_lower_point)
-            y_upper.append(y_upper_point)
-
-        # print(y_lower)
-        # print(y_upper)
-
-        y_plotly_values = y_lower + list(reversed(y_upper))
+        y_plotly_values = lower + list(reversed(upper))
         return y_plotly_values
 
     # Note: Always same for this chart. Could add in config in plotly for labels later.
     def generate_x_line_data(self):
         return self.x_list + list(reversed(self.x_list))
 
-    # def gamma_norm(self, p):
-    #     # Given p value, find opacity.
-    #     return 1 / norm.pdf(p)
+    def generate_shape(self, upper, lower):
+        x_plotly_values = self.generate_x_line_data()
+        y_plotly_values = self.generate_y_line_data(upper, lower)
+        area = go.Scatter(
+            x=x_plotly_values,
+            y=y_plotly_values,
+            mode='lines',
+            # legendgroup='group 95%',
+            name='drawing shape',
+            fill='tozeroy',
+            # fillcolor=fillcolor["fill03"],
+            hoverinfo='none',
+            marker={'size': 1, 'opacity': 0},
+            line={'width': 0.5}
+        )
+        self.data.append(area)
+        return area
+
+    # Finds fuzz given size and n.
+    def create_fuzzy_area(self, upper, lower, fuzz_size, fuzz_n):
+        areas_p_95 = test_plot.calc_fuzz_area(self.ci95p, self.ci60p, fuzz_size=fuzz_size)
+        area_per_fuzz = [area/fuzz_n for area in areas_p_95]
+        # print(areas_p_95)
+        # print(area_per_fuzz)
+
+
+        # Create area with all the fuzz and by generating upper and lower of each line
+        # Building from Top to bottom
+        # Upper fuzz
+        for i in range(1, fuzz_n+1):
+            cur_upper = [upper - (area*(i-1)) for (upper, area) in zip(self.ci95p, area_per_fuzz)]
+            cur_lower = [upper - (area*(i)) for (upper, area) in zip(self.ci95p, area_per_fuzz)]
+            self.generate_shape(cur_upper, cur_lower)
+
+        # Lower fuzz - Building from bottom to top
+        for i in range(1, fuzz_n+1):
+            cur_upper = [upper + (area*(i)) for (upper, area) in zip(self.ci60p, area_per_fuzz)]
+            cur_lower = [upper + (area*(i-1)) for (upper, area) in zip(self.ci60p, area_per_fuzz)]
+            self.generate_shape(cur_upper, cur_lower)
+
+
+    # Central Main shape
+        fuzz_p_95_up_lower = [upper - area for (upper, area) in zip(self.ci95p, areas_p_95)]
+        fuzz_p_95_down_upper = [upper + area for (upper, area) in zip(self.ci60p, areas_p_95)]
+        self.generate_shape(fuzz_p_95_up_lower, fuzz_p_95_down_upper)
 
     def data(self):
 
@@ -395,8 +419,7 @@ class FuzzyPlotly:
         return data
 
     def plot(self):
-        data = self.data()
-        fig = go.Figure(data=data, layout=self.layout)
+        fig = go.Figure(data=self.data, layout=self.layout)
 
         if self.output == 'offline':
             plotly.offline.plot(fig, config={'displayModeBar': False},)
@@ -410,74 +433,83 @@ class FuzzyPlotly:
 
 if __name__ == '__main__':
 
-    new_fig_a_1 = {
-        'marker': {'color': 'red', 'size': 10, 'symbol': 104},
-        'mode': 'markers+lines',
-        'name': '1st Trace',
-        'text': ['one', 'two', 'three'],
-        'type': 'scatter',
-        'x': [1, 2, 3],
-        'y': [4, 2, 1]
-    }
+    df = pd.read_csv("../csv/unemployment 2012-2017.csv")
+    std = list(df['sd'])
+    y = list(df['People'])
 
-    new_fig_a_2 = {
-        'marker': {'color': 'green', 'size': 5, 'symbol': 104},
-        'mode': 'markers+lines',
-        'name': '1st Trace',
-        'text': ['one', 'two', 'three'],
-        'type': 'scatter',
-        'x': [8, 9, 10],
-        'y': [4, 8, 1]
-    }
+    y_n_95 = []
+    y_p_95 = []
 
-    # Maybe in CSV user can also add labels?
+    y_n_60 = []
+    y_p_60 = []
 
-    new_fig2 = go.Scatter(x=[4,5,6], y=[4,5,6], marker={'color': 'red', 'symbol': 104, 'size': 10},  mode="markers+lines",  text=["one","two","three"])
-    new_fig3 = go.Scatter(
-        x=[4,5,6],
-        y=[4,5,9],
-        marker={'color': 'red', 'symbol': 104, 'size': 10},
-        mode="markers+lines",
-        text=["one", "two", "three"]
-    )
+    y_n_30 = []
+    y_p_30 = []
 
-    # Plotting directly
-    # my_plt = FuzzyPlotly(x_sample_values, y_sample_values, std, output='online')
-    # my_plt = FuzzyPlotly(x_sample_values, y_sample_values, std, figs=[new_fig2, new_fig3])
-    # my_plt.plot()
+    y_median = []
 
-    # Taking out data and plotting independently
-    # data = my_plt.data()
-    # print(data)
-    # data = data + [new_fig_a_1, new_fig2]
-    # plotly.offline.plot(data, filename='fuzzy_dev_plt',  config={'displayModeBar': False})
-    # py.plot(data, filename='my_own_plot', config={'displayModeBar': False})
+    def generate_interval_point(p, center, std, offset=0):
+        point = [p+offset]
+        boundary_point = norm.ppf(point, loc=center, scale=std)
+        # print(f'point: {point}, p: {p}, center: {center}, std: {std}, offset: {offset} ==> boundary_point: {boundary_point}')
+        return boundary_point[0]
 
-    layout = go.Layout(
-        title='Unemployment between 2012 and 2017',
-        titlefont=dict(
-            family='Courier New, monospace',
-            size=30,
-            color='#7f7f7f'
-        ),
-        xaxis=dict(
-            title='Dates',
-            titlefont=dict(
-                family='Courier New, monospace',
-                size=20,
-                color='#7f7f7f'
-            )
-        ),
-        yaxis=dict(
-            title='Unemployment rate',
-            titlefont=dict(
-                family='Courier New, monospace',
-                size=20,
-                color='#7f7f7f'
-            )
-        )
-    )
+    for i in range(len(y)):
+        y_n_95.append(generate_interval_point(0.025, y[i], std[i]))
+        y_p_95.append(generate_interval_point(0.975, y[i], std[i]))
 
-    FuzzyPlotly(x_sample_values, y_sample_values, std, layout=layout, output='offline').plot()
-    # print(FuzzyPlotly(x_sample_values, y_sample_values, std).data())
+        y_n_60.append(generate_interval_point(0.2, y[i], std[i]))
+        y_p_60.append(generate_interval_point(0.8, y[i], std[i]))
 
+        y_n_30.append(generate_interval_point(0.35, y[i], std[i]))
+        y_p_30.append(generate_interval_point(0.65, y[i], std[i]))
+
+        y_median.append(generate_interval_point(0.5, y[i], std[i]))
+
+    # print(y_n_95)
+
+    # Need to add now
+    # n = Number of lines, u = Fuzziness size in %. 1 is 100%, 0.1 is 10%.
+    test_plot = FuzzyPlotly(
+        x_sample_values, y_median,
+        ci95p=y_p_95, ci95n=y_n_95,
+        ci60p=y_p_60, ci60n=y_n_60,
+        ci30p=y_p_30, ci30n=y_n_30,
+        fuzz_size=0.1, fuzz_n=2,
+                )
+    # # Discrete lines
+    # test_plot.generate_shape(y_p_95, y_p_60)
+    # test_plot.generate_shape(y_p_60, y_p_30)
+    #
+    # test_plot.generate_shape(y_p_30, y_n_30)
+    #
+    # test_plot.generate_shape(y_n_30, y_n_60)
+    # test_plot.generate_shape(y_n_60, y_n_95)
+
+
+    # With fuzz boundaries but no fuzzying
+    # areas_p_95 = test_plot.calc_fuzz_area(y_p_95, y_p_60, fuzz_size=0.1, fuzz_n=2)
+    #
+    # fuzz_p_95_up_lower = [upper - area for (upper, area) in zip(y_p_95, areas_p_95)]
+    # fuzz_p_95_down_upper = [upper + area for (upper, area) in zip(y_p_60, areas_p_95)]
+    #
+    # print(y_p_95)
+    # print(fuzz_p_95_up_lower)
+    # # print(fuzz_p_95_down_upper)
+    # # print(y_p_60)
+    #
+    # # print(len(y_p_95))
+    # # print(len(fuzz_95_up_lower))
+    # # print(len(fuzz_95_down_upper))
+    # # print(len(y_p_60))
+    #
+    # test_plot.generate_shape(y_p_95, fuzz_p_95_up_lower)
+    # test_plot.generate_shape(fuzz_p_95_up_lower, fuzz_p_95_down_upper)
+    # test_plot.generate_shape(fuzz_p_95_down_upper, y_p_60)
+    #
+    # # test_plot.generate_shape(y_p_30, y_n_30)
+
+
+    test_plot.create_fuzzy_area(upper="x", lower="x", fuzz_size=0.1, fuzz_n=10)
+
+    test_plot.plot()
