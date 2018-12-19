@@ -275,7 +275,7 @@ class FuzzyPlotly:
             fillcolor=config["color"],
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
-            line={'color': config["color"], 'width': 1,}
+            line={'color': config["color_edge"], 'width': 1,}
         )
         self.data.append(area)
         return area
@@ -312,12 +312,12 @@ class FuzzyPlotly:
             # Upper fuzz
             cur_up_upper = [upper - (area*(i-1)) for (upper, area) in zip(upper, area_per_fuzz)]
             cur_up_lower = [upper - (area*(i)) for (upper, area) in zip(upper, area_per_fuzz)]
-            self.generate_shape(cur_up_upper, cur_up_lower, {"color": f'rgb{fuzz_colors_upper[fuzz_n-i]}'})
+            self.generate_shape(cur_up_upper, cur_up_lower, {"color": f'rgb{fuzz_colors_upper[fuzz_n-i]}', "color_edge": f'rgb{fuzz_colors_upper[fuzz_n-i]}'})
 
             # Lower fuzz - Building from bottom to top
             cur_down_upper = [upper + (area*(i)) for (upper, area) in zip(lower, area_per_fuzz)]
             cur_down_lower = [upper + (area*(i-1)) for (upper, area) in zip(lower, area_per_fuzz)]
-            self.generate_shape(cur_down_upper, cur_down_lower, {"color": f'rgb{fuzz_colors_lower[fuzz_n-i]}'})
+            self.generate_shape(cur_down_upper, cur_down_lower, {"color": f'rgb{fuzz_colors_lower[fuzz_n-i]}', "color_edge": f'rgb{fuzz_colors_lower[fuzz_n-i]}'})
 
         # Central Main shape
         fuzz_main_up_lower = [upper - area for (upper, area) in zip(upper, areas_upper)]
@@ -401,31 +401,31 @@ class FuzzyPlotly:
             )
 
 
-        # self.create_fuzzy_shape(
-        #     upper=self.ci95p, lower=self.ci60p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
-        #     color_center={"color": self.rgb_to_rgba_string(color_rgb, color_opacity['w_95'])},
-        #     fuzz_color_upper= , fuzz_color_lower= ,
-        # )
+        self.create_fuzzy_shape(
+            upper=self.ci95p, lower=self.ci60p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+            color_center={"color": f'rgb{color_rgb_w95}', "color_edge": f'rgb{color_rgb_w95}'},
+            fuzz_colors_upper=colors_w95_w100, fuzz_colors_lower=list(reversed(colors_mid_w95)),
+        )
         self.create_fuzzy_shape(
             upper=self.ci60p, lower=self.ci30p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
-            color_center={"color": self.rgb_to_rgba_string(color_rgb, color_opacity['w_60'])},
-            fuzz_colors_upper=colors_mid_w60, fuzz_colors_lower=list(reversed(colors_mid_w60)),
+            color_center={"color": f'rgb{color_rgb_w60}', "color_edge": f'rgb{color_rgb_w60}'},
+            fuzz_colors_upper=colors_w60_mid, fuzz_colors_lower=list(reversed(colors_mid_w60)),
         )
         self.create_fuzzy_shape(
             upper=self.ci30p, lower=self.ci30n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
-            color_center={"color": self.rgb_to_rgba_string(color_rgb, color_opacity['w_30'])},
+            color_center={"color": f'rgb{color_rgb_w30}', "color_edge": f'rgb{color_rgb_w30}'},
             fuzz_colors_upper=colors_w30_mid, fuzz_colors_lower=colors_w30_mid,
         )
-        # self.create_fuzzy_shape(
-        #     upper=self.ci30n, lower=self.ci60n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
-        #     color_center={"color": self.rgb_to_rgba_string(color_rgb, color_opacity['w_60'])},
-        #     fuzz_color_upper= , fuzz_color_lower= ,
-        # )
-        # self.create_fuzzy_shape(
-        #     upper=self.ci60n, lower=self.ci95n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
-        #     color_center={"color": self.rgb_to_rgba_string(color_rgb, color_opacity['w_95'])},
-        #     fuzz_color_upper= , fuzz_color_lower= ,
-        # )
+        self.create_fuzzy_shape(
+            upper=self.ci30n, lower=self.ci60n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+            color_center={"color": f'rgb{color_rgb_w60}', "color_edge": f'rgb{color_rgb_w60}'},
+            fuzz_colors_upper=list(reversed(colors_mid_w60)), fuzz_colors_lower=colors_w60_mid,
+        )
+        self.create_fuzzy_shape(
+            upper=self.ci60n, lower=self.ci95n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+            color_center={"color": f'rgb{color_rgb_w95}', "color_edge": f'rgb{color_rgb_w95}'},
+            fuzz_colors_upper=list(reversed(colors_mid_w95)), fuzz_colors_lower=colors_w95_w100,
+        )
 
     def datax(self):
 
