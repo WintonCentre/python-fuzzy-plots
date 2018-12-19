@@ -242,7 +242,6 @@ class FuzzyPlotly:
             # print('===')
         return colors
 
-
     def calc_fuzz_area(self, upper, lower, fuzz_size):
         # area_diff = upper - lower
         area = [((y1 - y2)*fuzz_size)/2 for (y1, y2) in zip(upper, lower)]
@@ -426,6 +425,21 @@ class FuzzyPlotly:
             color_center={"color": f'rgb{color_rgb_w95}', "color_edge": f'rgb{color_rgb_w95}'},
             fuzz_colors_upper=list(reversed(colors_mid_w95)), fuzz_colors_lower=colors_w95_w100,
         )
+
+        median = go.Scatter(
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(self.y_list, self.y_list),
+            mode='lines',
+            # legendgroup='group 95%',
+            name='drawing shape',
+            fill='tozeroy',
+            fillcolor="#ff99cc",
+            hoverinfo='none',
+            marker={'size': 1, 'opacity': 0},
+            line={'color': "#ff99cc", 'width': 1,}
+        )
+        self.data.append(median)
+
 
     def datax(self):
 
@@ -713,16 +727,6 @@ if __name__ == '__main__':
 
     # Need to add now
     # n = Number of lines, u = Fuzziness size in %. 1 is 100%, 0.1 is 10%.
-    #
-    test_plot = FuzzyPlotly(
-        x_sample_values, y_median,
-        ci95p=y_p_95, ci95n=y_n_95,
-        ci60p=y_p_60, ci60n=y_n_60,
-        ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=0.2, fuzz_n=10, color="#AE00FF"
-                )
-    test_plot.create_data()
-    test_plot.plot()
 
 
     # # Discrete lines
@@ -756,3 +760,37 @@ if __name__ == '__main__':
     # test_plot.generate_shape(fuzz_p_95_down_upper, y_p_60)
     #
     # # test_plot.generate_shape(y_p_30, y_n_30)
+
+
+    # Fuzzy plot example 01
+    # test_plot = FuzzyPlotly(
+    #     x_sample_values, y_median,
+    #     ci95p=y_p_95, ci95n=y_n_95,
+    #     ci60p=y_p_60, ci60n=y_n_60,
+    #     ci30p=y_p_30, ci30n=y_n_30,
+    #     fuzz_size=0.8, fuzz_n=10, color="#AE00FF"
+    #             )
+    # test_plot.create_data()
+    # test_plot.plot()
+
+    # Fuzzy plot example 02
+    test_plot2 = FuzzyPlotly(
+        x_sample_values, y_median,
+        ci95p=y_p_95, ci95n=y_n_95,
+        ci60p=y_p_60, ci60n=y_n_60,
+        ci30p=y_p_30, ci30n=y_n_30,
+        fuzz_size=0.8, fuzz_n=10, color="#0000FF"
+                )
+    test_plot2.create_data()
+    test_plot2.plot()
+
+    # # Discrete plot example 03
+    # test_plot_discrete = FuzzyPlotly(
+    #     x_sample_values, y_median,
+    #     ci95p=y_p_95, ci95n=y_n_95,
+    #     ci60p=y_p_60, ci60n=y_n_60,
+    #     ci30p=y_p_30, ci30n=y_n_30,
+    #     fuzz_size=0.01, fuzz_n=1, color="#0000FF"
+    # )
+    # test_plot_discrete.create_data()
+    # test_plot_discrete.plot()
