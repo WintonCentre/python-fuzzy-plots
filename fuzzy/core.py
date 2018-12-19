@@ -84,7 +84,7 @@ class FuzzyPlotly:
     def __init__(self, x_list, y_list,
                  ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
                  fuzz_size, fuzz_n,
-                 layout={}, figs=[], output='auto'):
+                 color='#4286f4', layout={}, figs=[], output='auto'):
         plotly.tools.set_credentials_file(username='oneGene', api_key='JvxeS4ghBsrIRKsXYfTf')
         self.x_list = x_list
         self.y_list = y_list
@@ -98,6 +98,7 @@ class FuzzyPlotly:
         self.fuzz_n = fuzz_n
         self.layout = layout
         self.figs = figs
+        self.color = color
         self.data = []
 
         # Automatically figures out if it's running in ipython. If not
@@ -121,6 +122,127 @@ class FuzzyPlotly:
     #     # print(f'point: {point}, p: {p}, center: {center}, std: {std}, offset: {offset} ==> boundary_point: {boundary_point}')
     #     return boundary_point[0]
 
+    def hex_to_rgb(self, hex_color):
+        color = hex_color.lstrip('#')
+        rgb_color = tuple(int(color[i:i+2], 16) for i in (0, 2 ,4))
+        return rgb_color
+
+    def rgb_to_hex(self, rgb):
+        hex_color = "".join([format(val, '02X') for val in rgb])
+        return f"#{hex_color}"
+
+    # Takes in user's input colour and calculates ci colours
+    def calc_colour(self, upper_ci, lower_ci, per):
+        h_ci = norm.ppf(upper_ci, loc=0, scale=1) - norm.ppf(lower_ci, loc=0, scale=1)
+        # print(h_ci)
+        w_ci = per / h_ci
+        # print(w_ci)
+        return w_ci
+
+    def create_color_opacity(self):
+        '''
+        Calculates color opacity for set confidence intervals using normal distribution to match confidence intervals
+        :return:
+        '''
+        # [0.025, 0.2, 0.35, 0.5, 0.65, 0.8, 0.975]
+        w_30 = self.calc_colour(0.65, 0.35, 0.3)
+        w_60 = self.calc_colour(0.8, 0.2, 0.3)
+        w_95 = self.calc_colour(0.975, 0.025, 0.35)
+
+        # factor used to scale to 1 (for opacity)
+        a = 1 / w_30
+
+        w_30_final = w_30 * a
+        w_60_final = w_60 * a
+        w_95_final = w_95 * a
+
+        color_opacity = {
+            'w_30': w_30_final,
+            'w_60': w_60_final,
+            'w_95': w_95_final,
+        }
+        # print(w_30)
+        # print(w_60)
+        # print(w_95)
+        #
+        # print("")
+        #
+        # print(w_30 * a)
+        # print(w_60 * a)
+        # print(w_95 * a)
+        return color_opacity
+
+    def rgb_to_rgba(self, rgb, opacity):
+        '''
+        Takes rgb tuple and opacity between 0-1 and return rgba tuple.
+        :param rgb:
+        :param opacity:
+        :return:
+        '''
+        color_rgba = rgb + (opacity,)
+        return color_rgba
+
+    def rgb_to_rgba_string(self, rgb, opacity):
+        '''
+        Takes rgb tuple and opacity between 0-1 and return rgba tuple.
+        :param rgb:
+        :param opacity:
+        :return:
+        '''
+        color_rgba = rgb + (opacity,)
+        return f"rgba{color_rgba}"
+
+    def rbga_to_rgb(self, rgba):
+        '''
+        Takes in tuple of (255,255,255,1)
+        :param rgba:
+        :return:
+        '''
+
+        # Background color. Assumes it's white.
+        BGColor = (255,255,255)
+
+        r = ((1 - rgba[3]) * BGColor[0]) + (rgba[3] * rgba[0])
+        g = ((1 - rgba[3]) * BGColor[1]) + (rgba[3] * rgba[1])
+        b = ((1 - rgba[3]) * BGColor[2]) + (rgba[3] * rgba[2])
+        rgb = (r,g,b)
+        # print(rgb)
+        return rgb
+
+    # Finds color between two colors using gradient
+    # takes rgb only.?
+    # go from low color to high
+    def calculate_fuzz_colors(self, color_a, color_b, fuzz_n):
+        color_a_r, color_a_g, color_a_b = color_a
+        color_b_r, color_b_g, color_b_b = color_b
+        colors = []
+        fuzz_n = int(fuzz_n)
+        # print(f'color_a: {color_a}')
+        # print(f'color_b: {color_b}')
+        r_step = abs(( - color_a_r + color_b_r))/fuzz_n
+        g_step = abs(( - color_a_g + color_b_g))/fuzz_n
+        b_step = abs(( - color_a_b + color_b_b))/fuzz_n
+
+        # print(f'color_a_r: {color_a_r}')
+        # print(f'color_b_r: {color_b_r}')
+        # print(f'self.fuzz_n: {self.fuzz_n}')
+        # print(f'r_step: {r_step}')
+        # print(f'r_step: {r_step}')
+
+        for i in range(fuzz_n):
+            color = ((color_a_r + i*r_step), (color_a_g + i*g_step), (color_a_b + i*b_step), )
+
+            # print(f'i: {i}')
+            # print(f'r_step: {r_step}')
+            # print(f'color_a_r: {color_a_r}')
+            # color = color_a_r + (i*r_step)
+            colors.append(color)
+
+            # print(color)
+            # print('===')
+        return colors
+
+
     def calc_fuzz_area(self, upper, lower, fuzz_size):
         # area_diff = upper - lower
         area = [((y1 - y2)*fuzz_size)/2 for (y1, y2) in zip(upper, lower)]
@@ -138,9 +260,11 @@ class FuzzyPlotly:
     def generate_x_line_data(self):
         return self.x_list + list(reversed(self.x_list))
 
-    def generate_shape(self, upper, lower):
+    def generate_shape(self, upper, lower, config):
         x_plotly_values = self.generate_x_line_data()
         y_plotly_values = self.generate_y_line_data(upper, lower)
+        # print("Config at generate_shape")
+        # print(config)
         area = go.Scatter(
             x=x_plotly_values,
             y=y_plotly_values,
@@ -148,16 +272,16 @@ class FuzzyPlotly:
             # legendgroup='group 95%',
             name='drawing shape',
             fill='tozeroy',
-            # fillcolor=fillcolor["fill03"],
+            fillcolor=config["color"],
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
-            line={'width': 0.5}
+            line={'color': config["color"], 'width': 1,}
         )
         self.data.append(area)
         return area
 
     # Finds fuzz for confidence interval with fuzz size and fuzz n.
-    def create_fuzzy_shape(self, upper, lower, fuzz_size, fuzz_n):
+    def create_fuzzy_shape(self, upper, lower, fuzz_size, fuzz_n, color_center, fuzz_colors_upper, fuzz_colors_lower):
         areas_upper = self.calc_fuzz_area(upper, lower, fuzz_size=fuzz_size)
         area_per_fuzz = [area/fuzz_n for area in areas_upper]
         # print(areas_p_95)
@@ -167,28 +291,141 @@ class FuzzyPlotly:
         # Create area with all the fuzz and by generating upper and lower of each line
         # Building from Top to bottom
 
+        # color_opacity = self.create_color_opacity()
+        # color_rgb = self.hex_to_rgb(self.color)
+        # color_rgba = self.rgb_to_rgba(color_rgb, color_opacity['w_95'])
+        # color_rgb_re = self.rbga_to_rgb(color_rgba)
+        # print(color_rgb_re)
+        # config_re = {"color": f'rgb{color_rgba}'}
+        #
+        # colors = self.calculate_fuzz_colors(
+        #     self.rbga_to_rgb(self.rgb_to_rgba(color_rgb, color_opacity['w_60'])),
+        #     self.rbga_to_rgb(color_rgba))
+        # print(colors)
+
+        # Since it's drawn from up to down, need list of strongest color to weakest.
+        # print(fuzz_n)
         for i in range(1, fuzz_n+1):
+            print(f'i :{i}')
+            print(f'fuzz_n :{fuzz_n}')
+            print(f'len(fuzz_colors_upper) :{len(fuzz_colors_upper)}')
             # Upper fuzz
             cur_up_upper = [upper - (area*(i-1)) for (upper, area) in zip(upper, area_per_fuzz)]
             cur_up_lower = [upper - (area*(i)) for (upper, area) in zip(upper, area_per_fuzz)]
-            self.generate_shape(cur_up_upper, cur_up_lower)
+            self.generate_shape(cur_up_upper, cur_up_lower, {"color": f'rgb{fuzz_colors_upper[fuzz_n-i]}'})
 
             # Lower fuzz - Building from bottom to top
             cur_down_upper = [upper + (area*(i)) for (upper, area) in zip(lower, area_per_fuzz)]
             cur_down_lower = [upper + (area*(i-1)) for (upper, area) in zip(lower, area_per_fuzz)]
-            self.generate_shape(cur_down_upper, cur_down_lower)
+            self.generate_shape(cur_down_upper, cur_down_lower, {"color": f'rgb{fuzz_colors_lower[fuzz_n-i]}'})
 
         # Central Main shape
-        fuzz_p_95_up_lower = [upper - area for (upper, area) in zip(upper, areas_upper)]
-        fuzz_p_95_down_upper = [upper + area for (upper, area) in zip(lower, areas_upper)]
-        self.generate_shape(fuzz_p_95_up_lower, fuzz_p_95_down_upper)
+        fuzz_main_up_lower = [upper - area for (upper, area) in zip(upper, areas_upper)]
+        fuzz_main_down_upper = [upper + area for (upper, area) in zip(lower, areas_upper)]
+        self.generate_shape(fuzz_main_up_lower, fuzz_main_down_upper, color_center)
 
     def create_data(self):
-        test_plot.create_fuzzy_shape(upper=self.ci95p, lower=self.ci60p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n)
-        test_plot.create_fuzzy_shape(upper=self.ci60p, lower=self.ci30p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n)
-        test_plot.create_fuzzy_shape(upper=self.ci30p, lower=self.ci30n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n)
-        test_plot.create_fuzzy_shape(upper=self.ci30n, lower=self.ci60n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n)
-        test_plot.create_fuzzy_shape(upper=self.ci60n, lower=self.ci95n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n)
+        color_opacity = self.create_color_opacity()
+        color_rgb = self.hex_to_rgb(self.color)
+
+        # 3 center colours + 2 in-between
+        color_rgba_w95 = self.rgb_to_rgba(color_rgb, color_opacity['w_95'])
+        color_rgba_w60 = self.rgb_to_rgba(color_rgb, color_opacity['w_60'])
+        color_rgba_w30 = self.rgb_to_rgba(color_rgb, color_opacity['w_30'])
+
+        color_rgb_w95 = self.rbga_to_rgb(color_rgba_w95)
+        color_rgb_w60 = self.rbga_to_rgb(color_rgba_w60)
+        color_rgb_w30 = self.rbga_to_rgb(color_rgba_w30)
+
+        colors_w30_w60 = self.calculate_fuzz_colors(
+            color_rgb_w30,
+            color_rgb_w60,
+            self.fuzz_n,
+        )
+        colors_w60_w95 = self.calculate_fuzz_colors(
+            color_rgb_w60,
+            color_rgb_w95,
+            self.fuzz_n,
+        )
+        # assumes max is white?
+        colors_w95_w100 = self.calculate_fuzz_colors(
+            color_rgb_w95,
+            (255, 255, 255),
+            self.fuzz_n,
+        )
+
+        # Find mid point
+        color_w30_mid_w60 = self.calculate_fuzz_colors(
+            color_rgb_w30,
+            color_rgb_w60,
+            self.fuzz_n,
+        )[int(self.fuzz_n/2)]
+
+        # Find upper
+        colors_w30_mid = self.calculate_fuzz_colors(
+            color_rgb_w30,
+            color_w30_mid_w60,
+            self.fuzz_n,
+        )
+
+        # Find lower
+        colors_mid_w60 = self.calculate_fuzz_colors(
+            color_w30_mid_w60,
+            color_rgb_w60,
+            self.fuzz_n,
+        )
+        # print(color_w30_mid_w60)
+        # print(colors_w30_mid)
+        # print(colors_mid_w60)
+        # print(colors_w30_w60)
+
+        # Find mid point
+        color_w60_mid_w95 = self.calculate_fuzz_colors(
+            color_rgb_w60,
+            color_rgb_w95,
+            self.fuzz_n,
+        )[int(self.fuzz_n/2)]
+
+        # Find upper
+        colors_w60_mid = self.calculate_fuzz_colors(
+            color_rgb_w60,
+            color_w60_mid_w95,
+            self.fuzz_n,
+            )
+
+        # Find lower
+        colors_mid_w95 = self.calculate_fuzz_colors(
+            color_w60_mid_w95,
+            color_rgb_w95,
+            self.fuzz_n,
+            )
+
+
+        # self.create_fuzzy_shape(
+        #     upper=self.ci95p, lower=self.ci60p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+        #     color_center={"color": self.rgb_to_rgba_string(color_rgb, color_opacity['w_95'])},
+        #     fuzz_color_upper= , fuzz_color_lower= ,
+        # )
+        self.create_fuzzy_shape(
+            upper=self.ci60p, lower=self.ci30p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+            color_center={"color": self.rgb_to_rgba_string(color_rgb, color_opacity['w_60'])},
+            fuzz_colors_upper=colors_mid_w60, fuzz_colors_lower=list(reversed(colors_mid_w60)),
+        )
+        self.create_fuzzy_shape(
+            upper=self.ci30p, lower=self.ci30n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+            color_center={"color": self.rgb_to_rgba_string(color_rgb, color_opacity['w_30'])},
+            fuzz_colors_upper=colors_w30_mid, fuzz_colors_lower=colors_w30_mid,
+        )
+        # self.create_fuzzy_shape(
+        #     upper=self.ci30n, lower=self.ci60n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+        #     color_center={"color": self.rgb_to_rgba_string(color_rgb, color_opacity['w_60'])},
+        #     fuzz_color_upper= , fuzz_color_lower= ,
+        # )
+        # self.create_fuzzy_shape(
+        #     upper=self.ci60n, lower=self.ci95n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+        #     color_center={"color": self.rgb_to_rgba_string(color_rgb, color_opacity['w_95'])},
+        #     fuzz_color_upper= , fuzz_color_lower= ,
+        # )
 
     def datax(self):
 
@@ -476,12 +713,13 @@ if __name__ == '__main__':
 
     # Need to add now
     # n = Number of lines, u = Fuzziness size in %. 1 is 100%, 0.1 is 10%.
+    #
     test_plot = FuzzyPlotly(
         x_sample_values, y_median,
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=0.4, fuzz_n=10,
+        fuzz_size=0.2, fuzz_n=10, color="#AE00FF"
                 )
     test_plot.create_data()
     test_plot.plot()
@@ -518,6 +756,3 @@ if __name__ == '__main__':
     # test_plot.generate_shape(fuzz_p_95_down_upper, y_p_60)
     #
     # # test_plot.generate_shape(y_p_30, y_n_30)
-
-
-

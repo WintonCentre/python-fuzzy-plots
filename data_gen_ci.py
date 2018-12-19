@@ -42,6 +42,13 @@ for i in range(len(y)):
     y_median.append(generate_interval_point(0.5, y[i], std[i]))
 
 
-print(y_n_95)
 print(y_median)
+
+print(y_n_95)
 print(y_p_95)
+
+print(y_n_60)
+print(y_p_60)
+
+print(y_n_30)
+print(y_p_30)

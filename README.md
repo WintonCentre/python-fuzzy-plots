@@ -1,3 +1,7 @@
+# Temp Notes Personal
+### Testing
+python -m unittest
+
 # Python Fuzzy Plots
 Fuzzy Plots using python and plotly showing uncertainty. Similar to (x chart?) by Office for National Statistics.
 (TODO: insert pic)
