@@ -152,9 +152,9 @@ class FuzzyPlotly:
         # factor used to scale to 1 (for opacity)
         a = 1 / w_30
 
-        w_30_final = w_30 * a
-        w_60_final = w_60 * a
-        w_95_final = w_95 * a
+        w_30_final = w_30 * a / 1
+        w_60_final = w_60 * a / 1 # modified color
+        w_95_final = w_95 * a / 2 # modified color
 
         color_opacity = {
             'w_30': w_30_final,
@@ -433,10 +433,10 @@ class FuzzyPlotly:
             # legendgroup='group 95%',
             name='drawing shape',
             fill='tozeroy',
-            fillcolor="#ff99cc",
+            fillcolor="#000000",
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
-            line={'color': "#ff99cc", 'width': 1,}
+            line={'color': "#000000", 'width': 1,}
         )
         self.data.append(median)
 
@@ -763,26 +763,26 @@ if __name__ == '__main__':
 
 
     # Fuzzy plot example 01
-    # test_plot = FuzzyPlotly(
-    #     x_sample_values, y_median,
-    #     ci95p=y_p_95, ci95n=y_n_95,
-    #     ci60p=y_p_60, ci60n=y_n_60,
-    #     ci30p=y_p_30, ci30n=y_n_30,
-    #     fuzz_size=0.8, fuzz_n=10, color="#AE00FF"
-    #             )
-    # test_plot.create_data()
-    # test_plot.plot()
-
-    # Fuzzy plot example 02
-    test_plot2 = FuzzyPlotly(
+    test_plot = FuzzyPlotly(
         x_sample_values, y_median,
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=0.8, fuzz_n=10, color="#0000FF"
+        fuzz_size=1, fuzz_n=50, color="#AE00FF"
                 )
-    test_plot2.create_data()
-    test_plot2.plot()
+    test_plot.create_data()
+    test_plot.plot()
+
+    # Fuzzy plot example 02
+    # test_plot2 = FuzzyPlotly(
+    #     x_sample_values, y_median,
+    #     ci95p=y_p_95, ci95n=y_n_95,
+    #     ci60p=y_p_60, ci60n=y_n_60,
+    #     ci30p=y_p_30, ci30n=y_n_30,
+    #     fuzz_size=0.8, fuzz_n=10, color="#0000FF"
+    #             )
+    # test_plot2.create_data()
+    # test_plot2.plot()
 
     # # Discrete plot example 03
     # test_plot_discrete = FuzzyPlotly(
