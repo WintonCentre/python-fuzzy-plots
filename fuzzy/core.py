@@ -269,7 +269,7 @@ class FuzzyPlotly:
             y=y_plotly_values,
             mode='lines',
             # legendgroup='group 95%',
-            name='drawing shape',
+            # name='drawing shape',
             fill='tozeroy',
             fillcolor=config["color"],
             hoverinfo='none',
@@ -305,9 +305,9 @@ class FuzzyPlotly:
         # Since it's drawn from up to down, need list of strongest color to weakest.
         # print(fuzz_n)
         for i in range(1, fuzz_n+1):
-            print(f'i :{i}')
-            print(f'fuzz_n :{fuzz_n}')
-            print(f'len(fuzz_colors_upper) :{len(fuzz_colors_upper)}')
+            # print(f'i :{i}')
+            # print(f'fuzz_n :{fuzz_n}')
+            # print(f'len(fuzz_colors_upper) :{len(fuzz_colors_upper)}')
             # Upper fuzz
             cur_up_upper = [upper - (area*(i-1)) for (upper, area) in zip(upper, area_per_fuzz)]
             cur_up_lower = [upper - (area*(i)) for (upper, area) in zip(upper, area_per_fuzz)]
@@ -768,7 +768,7 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=1, fuzz_n=50, color="#AE00FF"
+        fuzz_size=0.5, fuzz_n=10, color="#0000FF"
                 )
     test_plot.create_data()
     test_plot.plot()
