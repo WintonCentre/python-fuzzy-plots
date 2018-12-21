@@ -143,10 +143,17 @@ plotly.offline.plot(data, filename='fuzzy_dev_plt')
 ### Plotting options
 FuzzyPlotly supports offline, online and jupyter notebook. It automatically defaults to offline mode and detect running of jupyter notebook (ipython).
 
-Possible parameters for output are "default", "offline", "online", "jupyter"
+Possible parameters for output are "auto", "offline", "online", "jupyter"
+
+##### Auto
+"auto" is is the value used when output parameter isn't given by an user.
+FuzzyPlot will try to figure out user's running environment and automatically pick best setting.
+
+`fuzzy_data = FuzzyPlotly([1,2,3,4,5], [2,6,8,6,5], [1,2,3,2,2])`
 
 ##### Offline
 By default this mode will be used unless it is being run inside of jupyter notebook.
+If output="offline" is set within jupyter html page with plot will be generated and opened.
 
 `fuzzy_data = FuzzyPlotly([1,2,3,4,5], [2,6,8,6,5], [1,2,3,2,2], output='offline')`
 
