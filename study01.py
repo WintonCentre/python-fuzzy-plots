@@ -64,9 +64,9 @@ if __name__ == '__main__':
     test_plot = FuzzyPlotly(
         x, y_median,
         ci95p=y_p_95, ci95n=y_n_95,
-        ci60p=y_p_60, ci60n=y_n_60,
-        ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=0.5, fuzz_n=10, color=color,
+        ci60p=y_p_95, ci60n=y_n_95,
+        ci30p=y_p_95, ci30n=y_n_95,
+        fuzz_size=1, fuzz_n=30, color=color,
         layout=layout,
     )
     test_plot.create_data()
@@ -76,7 +76,7 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=1, fuzz_n=2, color=color,
+        fuzz_size=0.4, fuzz_n=20, color=color,
         layout=layout,
     )
     test_plot_fuzzy.create_data()
@@ -96,14 +96,14 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=1, fuzz_n=2, color=color,
+        fuzz_size=0.8, fuzz_n=20, color=color,
         layout=layout,
     )
     solid_ci.create_data()
 
 
 
-    median_only.plot()
+    # median_only.plot()
     # solid_ci.plot()
-    # test_plot_fuzzy.plot()
+    test_plot_fuzzy.plot()
     # test_plot.plot()

@@ -152,6 +152,7 @@ class FuzzyPlotly:
         # factor used to scale to 1 (for opacity)
         a = 1 / w_30
 
+        # 1, 1, 2
         w_30_final = w_30 * a / 1
         w_60_final = w_60 * a / 1 # modified color
         w_95_final = w_95 * a / 2 # modified color

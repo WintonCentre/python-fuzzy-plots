@@ -17,7 +17,7 @@ def create_data():
     df = pd.read_csv("csv/uk_unemployment_sarah.csv")
 
     # Creates std from given 95% CI. Assumes it follows normal curve
-    df['std'] = df['95%CI'] / 1.96
+    df['std'] = df['95%CI'] /1000 / 1.96
 
     # print(list(df.dtypes.index))
 
