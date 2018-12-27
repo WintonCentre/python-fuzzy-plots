@@ -3,7 +3,7 @@ from data_gen_sarah import create_data
 
 
 if __name__ == '__main__':
-    color = '#3280f3'
+    color = '#ff0000'
 
     x, x_label, y_median, y_p_95, y_n_95, y_p_30, y_n_30, y_p_60, y_n_60 = create_data()
 
@@ -39,6 +39,10 @@ if __name__ == '__main__':
             'ticks': 'outside',
             'tickangle': 45,
             'showticklabels': True,
+            # 'ticklen': 3,
+            'tickwidth': 2,
+            'tickcolor': '#000',
+
 
             # 'nticks': 5, #tickmode has to be auto
 
@@ -55,7 +59,7 @@ if __name__ == '__main__':
                 'size': 18,
                 'color': 'grey',
             },
-            # 'showgrid':False,
+            'showgrid':False,
             'range': [1000000/1000, 2600000/1000],
 
         }
@@ -76,7 +80,7 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=0.4, fuzz_n=20, color=color,
+        fuzz_size=0.4, fuzz_n=10, color=color,
         layout=layout,
     )
     test_plot_fuzzy.create_data()
@@ -101,9 +105,21 @@ if __name__ == '__main__':
     )
     solid_ci.create_data()
 
+    fuzzy_fan = FuzzyPlotly(
+        x, y_median,
+        ci95p=y_p_95, ci95n=y_n_95,
+        ci60p=y_p_60, ci60n=y_n_60,
+        ci30p=y_p_30, ci30n=y_n_30,
+        fuzz_size=0.8, fuzz_n=25, color=color,
+        layout=layout,
+    )
+    fuzzy_fan.create_data()
+
 
 
     # median_only.plot()
     # solid_ci.plot()
-    test_plot_fuzzy.plot()
+    # test_plot_fuzzy.plot()
     # test_plot.plot()
+
+    fuzzy_fan.plot()

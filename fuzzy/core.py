@@ -79,7 +79,6 @@ y_sample_values = [8.337618963728, 8.279171746205, 8.203023291325001, 8.16982661
 std = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
 
-# Optional future params, number of intervals, color scheme (dict?), fuzziness,
 class FuzzyPlotly:
     def __init__(self, x_list, y_list,
                  ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
@@ -153,15 +152,21 @@ class FuzzyPlotly:
         a = 1 / w_30
 
         # 1, 1, 2
-        w_30_final = w_30 * a / 1
-        w_60_final = w_60 * a / 1 # modified color
-        w_95_final = w_95 * a / 2 # modified color
+        w_30_final = w_30 * a / 2
+        w_60_final = w_60 * a / 2  # modified color
+        w_95_final = w_95 * a / 2  # modified color
 
         color_opacity = {
             'w_30': w_30_final,
             'w_60': w_60_final,
             'w_95': w_95_final,
         }
+        # color_opacity = {
+        #     'w_30': 1,
+        #     'w_60': 0.7,
+        #     'w_95': 0.2,
+        # }
+        print(color_opacity)
         # print(w_30)
         # print(w_60)
         # print(w_95)
@@ -689,109 +694,445 @@ class FuzzyPlotly:
             iplot(fig, config={'displayModeBar': False})
 
 
-if __name__ == '__main__':
+class FuzzPlotly:
+    def __init__(self, x_list, y_list, ci95p, ci95n,
+                 fuzz_size, fuzz_n,
+                 color='#4286f4', layout={}, figs=[], output='auto'):
+        plotly.tools.set_credentials_file(username='oneGene', api_key='JvxeS4ghBsrIRKsXYfTf')
+        self.x_list = x_list
+        self.y_list = y_list
+        self.ci95p = ci95p
+        self.ci95n = ci95n
+        self.fuzz_size = fuzz_size
+        self.fuzz_n = fuzz_n
+        self.layout = layout
+        self.figs = figs
+        self.color = color
+        self.data = []
 
-    df = pd.read_csv("../csv/unemployment 2012-2017.csv")
-    std = list(df['sd'])
-    y = list(df['People'])
+        # Automatically figures out if it's running in ipython. If not
+        # Add default value of offline
+        if output == 'auto':
+            try:
+                get_ipython()
+                self.output = 'jupyter'
+                from plotly.offline import init_notebook_mode, iplot
+                import plotly.graph_objs as go
+            except NameError:
+                self.output = 'offline'
+        else:
+            self.output = output
 
-    y_n_95 = []
-    y_p_95 = []
-
-    y_n_60 = []
-    y_p_60 = []
-
-    y_n_30 = []
-    y_p_30 = []
-
-    y_median = []
-
-    def generate_interval_point(p, center, std, offset=0):
-        point = [p+offset]
+    # # probability is between 0-1
+    # # example p = [0.025, 0.2, 0.35, 0.5, 0.65, 0.8, 0.975]
+    def generate_interval_point(self, p, center, std, offset=0):
+        point = [p]
         boundary_point = norm.ppf(point, loc=center, scale=std)
-        # print(f'point: {point}, p: {p}, center: {center}, std: {std}, offset: {offset} ==> boundary_point: {boundary_point}')
         return boundary_point[0]
 
-    for i in range(len(y)):
-        y_n_95.append(generate_interval_point(0.025, y[i], std[i]))
-        y_p_95.append(generate_interval_point(0.975, y[i], std[i]))
+    def hex_to_rgb(self, hex_color):
+        color = hex_color.lstrip('#')
+        rgb_color = tuple(int(color[i:i+2], 16) for i in (0, 2 ,4))
+        return rgb_color
 
-        y_n_60.append(generate_interval_point(0.2, y[i], std[i]))
-        y_p_60.append(generate_interval_point(0.8, y[i], std[i]))
+    def rgb_to_hex(self, rgb):
+        hex_color = "".join([format(val, '02X') for val in rgb])
+        return f"#{hex_color}"
 
-        y_n_30.append(generate_interval_point(0.35, y[i], std[i]))
-        y_p_30.append(generate_interval_point(0.65, y[i], std[i]))
+    # Takes in user's input colour and calculates ci colours
+    def calc_colour(self, upper_ci, lower_ci, per):
+        h_ci = norm.ppf(upper_ci, loc=0, scale=1) - norm.ppf(lower_ci, loc=0, scale=1)
+        # print(h_ci)
+        w_ci = per / h_ci
+        # print(w_ci)
+        return w_ci
 
-        y_median.append(generate_interval_point(0.5, y[i], std[i]))
+    def create_color_opacity(self):
+        '''
+        Calculates color opacity for set confidence intervals using normal distribution to match confidence intervals
+        :return:
+        '''
+        # [0.025, 0.2, 0.35, 0.5, 0.65, 0.8, 0.975]
+        w_30 = self.calc_colour(0.65, 0.35, 0.3)
+        w_60 = self.calc_colour(0.8, 0.2, 0.3)
+        w_95 = self.calc_colour(0.975, 0.025, 0.35)
 
-    # print(y_n_95)
+        # factor used to scale to 1 (for opacity)
+        a = 1 / w_30
 
-    # Need to add now
-    # n = Number of lines, u = Fuzziness size in %. 1 is 100%, 0.1 is 10%.
+        # 1, 1, 2
+        w_30_final = w_30 * a / 1
+        w_60_final = w_60 * a / 1  # modified color
+        w_95_final = w_95 * a / 1  # modified color
+
+        # color_opacity = {
+        #     'w_30': w_30_final,
+        #     'w_60': w_60_final,
+        #     'w_95': w_95_final,
+        # }
+        color_opacity = {
+            'w_30': 1,
+            'w_60': 0.5,
+            'w_95': 0.1,
+        }
+        print(color_opacity)
+        # print(w_30)
+        # print(w_60)
+        # print(w_95)
+        #
+        # print("")
+        #
+        # print(w_30 * a)
+        # print(w_60 * a)
+        # print(w_95 * a)
+        return color_opacity
+
+    def rgb_to_rgba(self, rgb, opacity):
+        '''
+        Takes rgb tuple and opacity between 0-1 and return rgba tuple.
+        :param rgb:
+        :param opacity:
+        :return:
+        '''
+        color_rgba = rgb + (opacity,)
+        return color_rgba
+
+    def rgb_to_rgba_string(self, rgb, opacity):
+        '''
+        Takes rgb tuple and opacity between 0-1 and return rgba tuple.
+        :param rgb:
+        :param opacity:
+        :return:
+        '''
+        color_rgba = rgb + (opacity,)
+        return f"rgba{color_rgba}"
+
+    def rbga_to_rgb(self, rgba):
+        '''
+        Takes in tuple of (255,255,255,1)
+        :param rgba:
+        :return:
+        '''
+
+        # Background color. Assumes it's white.
+        BGColor = (255,255,255)
+
+        r = ((1 - rgba[3]) * BGColor[0]) + (rgba[3] * rgba[0])
+        g = ((1 - rgba[3]) * BGColor[1]) + (rgba[3] * rgba[1])
+        b = ((1 - rgba[3]) * BGColor[2]) + (rgba[3] * rgba[2])
+        rgb = (r,g,b)
+        # print(rgb)
+        return rgb
+
+    # Assume it's standard normal distribution with loc=0, scale=1 (mean=0, std=1)
+    def calculate_fuzz_color_normal(self, fuzz_n):
+        w95 = 1.959964
+        step = w95 / fuzz_n
+
+        scaling_to_1 = 2.5066282746310002
+
+        color = self.hex_to_rgb(self.color)
+        print('color')
+        print(color)
+        r_color, g_color, b_color = color
+
+        colors = []
 
 
-    # # Discrete lines
-    # test_plot.generate_shape(y_p_95, y_p_60)
-    # test_plot.generate_shape(y_p_60, y_p_30)
-    #
-    # test_plot.generate_shape(y_p_30, y_n_30)
-    #
-    # test_plot.generate_shape(y_n_30, y_n_60)
-    # test_plot.generate_shape(y_n_60, y_n_95)
+        # Going from 0 to 95%. 0 is highest and 95% is lowest.
+        for i in range(fuzz_n):
+            opacity = norm.pdf(i * step) * scaling_to_1
+            color_rgba = (r_color, g_color, b_color, opacity)
+            color_rgb = self.rbga_to_rgb(color_rgba)
+
+            # print(f'i: {i}')
+            # print(f'r_step: {step}')
+            # print(f'opacity: {opacity}')
+            # print(f'color_rgba: {color_rgba}')
+            # print(f'color_rgb: {color_rgb}')
+            # print()
+
+            colors.append(color_rgb)
+        return colors
 
 
-    # With fuzz boundaries but no fuzzying
-    # areas_p_95 = test_plot.calc_fuzz_area(y_p_95, y_p_60, fuzz_size=0.1, fuzz_n=2)
-    #
-    # fuzz_p_95_up_lower = [upper - area for (upper, area) in zip(y_p_95, areas_p_95)]
-    # fuzz_p_95_down_upper = [upper + area for (upper, area) in zip(y_p_60, areas_p_95)]
-    #
-    # print(y_p_95)
-    # print(fuzz_p_95_up_lower)
-    # # print(fuzz_p_95_down_upper)
-    # # print(y_p_60)
-    #
-    # # print(len(y_p_95))
-    # # print(len(fuzz_95_up_lower))
-    # # print(len(fuzz_95_down_upper))
-    # # print(len(y_p_60))
-    #
-    # test_plot.generate_shape(y_p_95, fuzz_p_95_up_lower)
-    # test_plot.generate_shape(fuzz_p_95_up_lower, fuzz_p_95_down_upper)
-    # test_plot.generate_shape(fuzz_p_95_down_upper, y_p_60)
-    #
-    # # test_plot.generate_shape(y_p_30, y_n_30)
+    # Finds color between two colors using gradient
+    # go from low color to high
+    def calculate_fuzz_colors(self, color_a, color_b, fuzz_n):
+        color_a_r, color_a_g, color_a_b = color_a
+        color_b_r, color_b_g, color_b_b = color_b
+        colors = []
+        fuzz_n = int(fuzz_n)
+        # print(f'color_a: {color_a}')
+        # print(f'color_b: {color_b}')
+        r_step = abs(( - color_a_r + color_b_r))/fuzz_n
+        g_step = abs(( - color_a_g + color_b_g))/fuzz_n
+        b_step = abs(( - color_a_b + color_b_b))/fuzz_n
+
+        # print(f'color_a_r: {color_a_r}')
+        # print(f'color_b_r: {color_b_r}')
+        # print(f'self.fuzz_n: {self.fuzz_n}')
+        # print(f'r_step: {r_step}')
+        # print(f'r_step: {r_step}')
+
+        for i in range(fuzz_n):
+            color = ((color_a_r + i*r_step), (color_a_g + i*g_step), (color_a_b + i*b_step), )
+
+            # print(f'i: {i}')
+            # print(f'r_step: {r_step}')
+            # print(f'color: {color}')
+            # color = color_a_r + (i*r_step)
+            colors.append(color)
+
+            # print(color)
+            # print('===')
+        return colors
+
+    def calc_fuzz_area(self, upper, lower, fuzz_size):
+        # area_diff = upper - lower
+        area = [((y1 - y2)*fuzz_size)/2 for (y1, y2) in zip(upper, lower)]
+        return area
+
+    # Gives output Plotly can use
+    def generate_y_line_data(self, upper, lower):
+        """
+        Creates shape of y values y plotly can use.
+        """
+        y_plotly_values = lower + list(reversed(upper))
+        return y_plotly_values
+
+    # Note: Always same for this chart. Could add in config in plotly for labels later.
+    def generate_x_line_data(self):
+        return self.x_list + list(reversed(self.x_list))
+
+    def generate_shape(self, upper, lower, config):
+        x_plotly_values = self.generate_x_line_data()
+        y_plotly_values = self.generate_y_line_data(upper, lower)
+        # print("Config at generate_shape")
+        # print(config)
+        area = go.Scatter(
+            x=x_plotly_values,
+            y=y_plotly_values,
+            mode='lines',
+            # legendgroup='group 95%',
+            # name='drawing shape',
+            fill='tozeroy',
+            fillcolor=config["color"],
+            hoverinfo='none',
+            marker={'size': 1, 'opacity': 0},
+            line={'color': config["color_edge"], 'width': 1,}
+        )
+        self.data.append(area)
+        return area
+
+    # Finds fuzz for confidence interval with fuzz size and fuzz n.
+    def create_fuzzy_shape(self, upper, lower, fuzz_size, fuzz_n, fuzz_colors):
+        areas_upper = self.calc_fuzz_area(upper, lower, fuzz_size=fuzz_size)
+        area_per_fuzz = [area/fuzz_n for area in areas_upper]
+
+        # Since it's drawn from up to down, need list of strongest color to weakest.
+        # print(fuzz_n)
+        for i in range(1, fuzz_n+1):
+            # print(f'i :{i}')
+            # print(f'fuzz_n :{fuzz_n}')
+            # print(f'len(fuzz_colors_upper) :{len(fuzz_colors_upper)}')
+            # Upper fuzz
+            cur_up_upper = [upper - (area*(i-1)) for (upper, area) in zip(upper, area_per_fuzz)]
+            cur_up_lower = [upper - (area*(i)) for (upper, area) in zip(upper, area_per_fuzz)]
+            self.generate_shape(cur_up_upper, cur_up_lower, {"color": f'rgb{fuzz_colors[fuzz_n-i]}', "color_edge": f'rgb{fuzz_colors[fuzz_n-i]}'})
+
+            # Lower fuzz - Building from bottom to top
+            cur_down_upper = [upper + (area*(i)) for (upper, area) in zip(lower, area_per_fuzz)]
+            cur_down_lower = [upper + (area*(i-1)) for (upper, area) in zip(lower, area_per_fuzz)]
+            self.generate_shape(cur_down_upper, cur_down_lower, {"color": f'rgb{fuzz_colors[fuzz_n-i]}', "color_edge": f'rgb{fuzz_colors[fuzz_n-i]}'})
+
+        # Central Main shape
+        # DELETE, no longer relevant in full fuzz
+        # fuzz_main_up_lower = [upper - area for (upper, area) in zip(upper, areas_upper)]
+        # fuzz_main_down_upper = [upper + area for (upper, area) in zip(lower, areas_upper)]
+        # self.generate_shape(fuzz_main_up_lower, fuzz_main_down_upper, color_center)
+
+    def create_data(self):
+        color_rgb = self.hex_to_rgb(self.color)
+
+        # Linear version
+        # color_rgba_w95 = self.rgb_to_rgba(color_rgb, 0)
+        # color_rgba_center = self.rgb_to_rgba(color_rgb, 1)
+
+        # # Find upper. Reverse for other side.
+        # colors_center_rgb_w95 = self.calculate_fuzz_colors(
+        #     color_rgb_center,
+        #     color_rgb_w95,
+        #     self.fuzz_n,
+        # )
+
+        # print('color_rgb_w95')
+        # print(color_rgba_w95)
+        #
+        # print('color_rgba_center')
+        # print(color_rgba_center)
+        # color_rgb_w95 = self.rbga_to_rgb(color_rgba_w95)
+
+        colors_center_rgb_w95 = self.calculate_fuzz_color_normal(self.fuzz_n)
 
 
-    # Fuzzy plot example 01
-    test_plot = FuzzyPlotly(
-        x_sample_values, y_median,
-        ci95p=y_p_95, ci95n=y_n_95,
-        ci60p=y_p_60, ci60n=y_n_60,
-        ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=0.5, fuzz_n=10, color="#0000FF"
-                )
-    test_plot.create_data()
-    test_plot.plot()
+    # print(colors_center_rgb_w95)
 
-    # Fuzzy plot example 02
-    # test_plot2 = FuzzyPlotly(
-    #     x_sample_values, y_median,
-    #     ci95p=y_p_95, ci95n=y_n_95,
-    #     ci60p=y_p_60, ci60n=y_n_60,
-    #     ci30p=y_p_30, ci30n=y_n_30,
-    #     fuzz_size=0.8, fuzz_n=10, color="#0000FF"
-    #             )
-    # test_plot2.create_data()
-    # test_plot2.plot()
+        self.create_fuzzy_shape(
+            upper=self.ci95p, lower=self.ci95n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+            # color_center={"color": f'rgb{color_rgb_center}', "color_edge": f'rgb{color_rgb_center}'},
+            fuzz_colors=colors_center_rgb_w95,
+        )
 
-    # # Discrete plot example 03
-    # test_plot_discrete = FuzzyPlotly(
-    #     x_sample_values, y_median,
-    #     ci95p=y_p_95, ci95n=y_n_95,
-    #     ci60p=y_p_60, ci60n=y_n_60,
-    #     ci30p=y_p_30, ci30n=y_n_30,
-    #     fuzz_size=0.01, fuzz_n=1, color="#0000FF"
-    # )
-    # test_plot_discrete.create_data()
-    # test_plot_discrete.plot()
+        # median = go.Scatter(
+        #     x=self.generate_x_line_data(),
+        #     y=self.generate_y_line_data(self.y_list, self.y_list),
+        #     mode='lines',
+        #     # legendgroup='group 95%',
+        #     name='drawing shape',
+        #     fill='tozeroy',
+        #     fillcolor="#000000",
+        #     hoverinfo='none',
+        #     marker={'size': 1, 'opacity': 0},
+        #     line={'color': "#000000", 'width': 1,}
+        # )
+        # self.data.append(median)
+
+    def plot(self):
+        fig = go.Figure(data=self.data, layout=self.layout)
+
+        if self.output == 'offline':
+            plotly.offline.plot(fig, config={'displayModeBar': False},)
+        if self.output == 'online':
+            # Online plotly server version. Doesn't seem to be able to turn displayModeBar off.
+            py.plot(fig, config={'displayModeBar': False})
+        if self.output == 'jupyter':
+            init_notebook_mode(connected=True)
+            iplot(fig, config={'displayModeBar': False})
+
+
+if __name__ == '__main__':
+
+    x_list = ['Aug-Oct 2013', 'Sep-Nov 2013', 'Oct-Dec 2013', 'Nov-Jan 2014', 'Dec-Feb 2014', 'Jan-Mar 2014', 'Feb-Apr 2014', 'Mar-May 2014', 'Apr-Jun 2014', 'May-Jul 2014', 'Jun-Aug 2014', 'Jul-Sep 2014', 'Aug-Oct 2014', 'Sep-Nov 2014', 'Oct-Dec 2014', 'Nov-Jan 2015', 'Dec-Feb 2015', 'Jan-Mar 2015', 'Feb-Apr 2015', 'Mar-May 2015', 'Apr-Jun 2015', 'May-Jul 2015', 'Jun-Aug 2015', 'Jul-Sep 2015', 'Aug-Oct 2015', 'Sep-Nov 2015', 'Oct-Dec 2015', 'Nov-Jan 2016', 'Dec-Feb 2016', 'Jan-Mar 2016', 'Feb-Apr 2016', 'Mar-May 2016', 'Apr-Jun 2016', 'May-Jul 2016', 'Jun-Aug 2016', 'Jul-Sep 2016', 'Aug-Oct 2016', 'Sep-Nov 2016', 'Oct-Dec 2016', 'Nov-Jan 2017', 'Dec-Feb 2017', 'Jan-Mar 2017', 'Feb-Apr 2017', 'Mar-May 2017', 'Apr-Jun 2017', 'May-Jul 2017', 'Jun-Aug 2017', 'Jul-Sep 2017', 'Aug-Oct 2017', 'Sep-Nov 2017', 'Oct-Dec 2017', 'Nov-Jan 2018', 'Dec-Feb 2018', 'Jan-Mar 2018', 'Feb-Apr 2018', 'Mar-May 2018', 'Apr-Jun 2018', 'May-Jul 2018', 'Jun-Aug 2018', 'Jul-Sep 2018', 'Aug-Oct 2018']
+
+
+
+    y_p_95 = [2564.998456480288, 2451.9984932307575, 2396.9984932307575, 2367.998511605992, 2304.9985299812265, 2274.998566731696, 2189.998566731696, 2116.9985851069305, 2107.9985851069305, 2123.9985851069305, 2117.9986034821654, 2120.9986034821654, 2105.998566731696, 2022.9986034821654, 1901.9986402326347, 1879.9986586078694, 1883.9986402326347, 1889.9986402326347, 1839.9986586078694, 1854.9986218574, 1896.9986034821654, 1933.9986034821654, 1921.9986034821654, 1912.9986218574, 1862.9986402326347, 1776.9986769831041, 1716.9986953583386, 1705.9986769831041, 1742.9986769831041, 1751.9986586078694, 1690.9987137335734, 1651.9987137335734, 1687.9986769831041, 1742.9986402326347, 1808.9986034821654, 1767.9986034821654, 1762.9985851069307, 1692.9986218574, 1620.9986402326347, 1598.9986586078694, 1596.9986586078694, 1598.9986769831041, 1548.9987137335734, 1496.998732108808, 1527.9986953583386, 1561.9986769831041, 1586.9986769831041, 1572.9986769831041, 1567.9986769831041, 1522.9987137335734, 1496.9987137335734, 1473.998732108808, 1462.9987137335734, 1486.9987137335734, 1442.998732108808, 1416.9987137335734, 1402.998732108808, 1461.9986953583386, 1499.9986769831041, 1522.9986586078694, 1521.9986586078694]
+
+    y_n_95 = [2397.001543519712, 2288.0015067692425, 2233.0015067692425, 2206.001488394008, 2145.0014700187735, 2119.001433268304, 2034.001433268304, 1963.0014148930693, 1954.0014148930693, 1970.0014148930693, 1966.0013965178346, 1969.0013965178346, 1950.001433268304, 1871.0013965178346, 1754.0013597673653, 1734.0013413921306, 1736.0013597673653, 1742.0013597673653, 1694.0013413921306, 1705.0013781426, 1745.0013965178346, 1782.0013965178346, 1770.0013965178346, 1763.0013781426, 1715.0013597673653, 1633.0013230168959, 1575.0013046416614, 1562.0013230168959, 1599.0013230168959, 1606.0013413921306, 1551.0012862664266, 1512.0012862664266, 1544.0013230168959, 1595.0013597673653, 1657.0013965178346, 1616.0013965178346, 1609.0014148930693, 1543.0013781426, 1473.0013597673653, 1453.0013413921306, 1451.0013413921306, 1455.0013230168959, 1409.0012862664266, 1359.001267891192, 1386.0013046416614, 1418.0013230168959, 1443.0013230168959, 1429.0013230168959, 1424.0013230168959, 1383.0012862664266, 1357.0012862664266, 1336.001267891192, 1323.0012862664266, 1347.0012862664266, 1305.001267891192, 1277.0012862664266, 1265.001267891192, 1320.0013046416614, 1356.0013230168959, 1377.0013413921306, 1376.0013413921306]
+
+    y_median = [2481.0, 2370.0, 2315.0, 2287.0, 2225.0, 2197.0, 2112.0, 2040.0, 2031.0, 2047.0, 2042.0, 2045.0, 2028.0, 1947.0, 1828.0, 1807.0, 1810.0, 1816.0, 1767.0, 1780.0, 1821.0, 1858.0, 1846.0, 1838.0, 1789.0, 1705.0, 1646.0, 1634.0, 1671.0, 1679.0, 1621.0, 1582.0, 1616.0, 1669.0, 1733.0, 1692.0, 1686.0, 1618.0, 1547.0, 1526.0, 1524.0, 1527.0, 1479.0, 1428.0, 1457.0, 1490.0, 1515.0, 1501.0, 1496.0, 1453.0, 1427.0, 1405.0, 1393.0, 1417.0, 1374.0, 1347.0, 1334.0, 1391.0, 1428.0, 1450.0, 1449.0]
+
+    my_fuzz_plot = FuzzPlotly(x_list=x_list, y_list=y_median, ci95p=y_p_95, ci95n=y_n_95, fuzz_size=1, fuzz_n=100)
+
+    my_fuzz_plot.create_data()
+    my_fuzz_plot.plot()
+
+
+
+# if __name__ == '__main__':
+#
+#     df = pd.read_csv("../csv/unemployment 2012-2017.csv")
+#     std = list(df['sd'])
+#     y = list(df['People'])
+#
+#     y_n_95 = []
+#     y_p_95 = []
+#
+#     y_n_60 = []
+#     y_p_60 = []
+#
+#     y_n_30 = []
+#     y_p_30 = []
+#
+#     y_median = []
+#
+#     def generate_interval_point(p, center, std, offset=0):
+#         point = [p+offset]
+#         boundary_point = norm.ppf(point, loc=center, scale=std)
+#         # print(f'point: {point}, p: {p}, center: {center}, std: {std}, offset: {offset} ==> boundary_point: {boundary_point}')
+#         return boundary_point[0]
+#
+#     for i in range(len(y)):
+#         y_n_95.append(generate_interval_point(0.025, y[i], std[i]))
+#         y_p_95.append(generate_interval_point(0.975, y[i], std[i]))
+#
+#         y_n_60.append(generate_interval_point(0.2, y[i], std[i]))
+#         y_p_60.append(generate_interval_point(0.8, y[i], std[i]))
+#
+#         y_n_30.append(generate_interval_point(0.35, y[i], std[i]))
+#         y_p_30.append(generate_interval_point(0.65, y[i], std[i]))
+#
+#         y_median.append(generate_interval_point(0.5, y[i], std[i]))
+#
+#     # print(y_n_95)
+#
+#     # Need to add now
+#     # n = Number of lines, u = Fuzziness size in %. 1 is 100%, 0.1 is 10%.
+#
+#
+#     # # Discrete lines
+#     # test_plot.generate_shape(y_p_95, y_p_60)
+#     # test_plot.generate_shape(y_p_60, y_p_30)
+#     #
+#     # test_plot.generate_shape(y_p_30, y_n_30)
+#     #
+#     # test_plot.generate_shape(y_n_30, y_n_60)
+#     # test_plot.generate_shape(y_n_60, y_n_95)
+#
+#
+#     # With fuzz boundaries but no fuzzying
+#     # areas_p_95 = test_plot.calc_fuzz_area(y_p_95, y_p_60, fuzz_size=0.1, fuzz_n=2)
+#     #
+#     # fuzz_p_95_up_lower = [upper - area for (upper, area) in zip(y_p_95, areas_p_95)]
+#     # fuzz_p_95_down_upper = [upper + area for (upper, area) in zip(y_p_60, areas_p_95)]
+#     #
+#     # print(y_p_95)
+#     # print(fuzz_p_95_up_lower)
+#     # # print(fuzz_p_95_down_upper)
+#     # # print(y_p_60)
+#     #
+#     # # print(len(y_p_95))
+#     # # print(len(fuzz_95_up_lower))
+#     # # print(len(fuzz_95_down_upper))
+#     # # print(len(y_p_60))
+#     #
+#     # test_plot.generate_shape(y_p_95, fuzz_p_95_up_lower)
+#     # test_plot.generate_shape(fuzz_p_95_up_lower, fuzz_p_95_down_upper)
+#     # test_plot.generate_shape(fuzz_p_95_down_upper, y_p_60)
+#     #
+#     # # test_plot.generate_shape(y_p_30, y_n_30)
+#
+#
+#     # Fuzzy plot example 01
+#     test_plot = FuzzyPlotly(
+#         x_sample_values, y_median,
+#         ci95p=y_p_95, ci95n=y_n_95,
+#         ci60p=y_p_60, ci60n=y_n_60,
+#         ci30p=y_p_30, ci30n=y_n_30,
+#         fuzz_size=1, fuzz_n=20, color="#0000FF"
+#                 )
+#     test_plot.create_data()
+#     test_plot.plot()
+#
+#     # Fuzzy plot example 02
+#     # test_plot2 = FuzzyPlotly(
+#     #     x_sample_values, y_median,
+#     #     ci95p=y_p_95, ci95n=y_n_95,
+#     #     ci60p=y_p_60, ci60n=y_n_60,
+#     #     ci30p=y_p_30, ci30n=y_n_30,
+#     #     fuzz_size=0.8, fuzz_n=10, color="#0000FF"
+#     #             )
+#     # test_plot2.create_data()
+#     # test_plot2.plot()
+#
+#     # # Discrete plot example 03
+#     # test_plot_discrete = FuzzyPlotly(
+#     #     x_sample_values, y_median,
+#     #     ci95p=y_p_95, ci95n=y_n_95,
+#     #     ci60p=y_p_60, ci60n=y_n_60,
+#     #     ci30p=y_p_30, ci30n=y_n_30,
+#     #     fuzz_size=0.01, fuzz_n=1, color="#0000FF"
+#     # )
+#     # test_plot_discrete.create_data()
+#     # test_plot_discrete.plot()

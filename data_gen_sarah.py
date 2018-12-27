@@ -87,3 +87,6 @@ if __name__ == '__main__':
 
     print(date)
     print(date_label)
+
+    print()
+    print(y_median)
