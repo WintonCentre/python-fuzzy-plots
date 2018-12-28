@@ -824,12 +824,16 @@ class FuzzPlotly:
         # print(rgb)
         return rgb
 
+    def normalize_data(self, val, val_max, val_min):
+        return (val - val_min) / (val_max - val_min)
+
     # Assume it's standard normal distribution with loc=0, scale=1 (mean=0, std=1)
     def calculate_fuzz_color_normal(self, fuzz_n):
         w95 = 1.959964
         step = w95 / fuzz_n
 
-        scaling_to_1 = 2.5066282746310002
+        scaling_to_1 = 2.5066282746310002 # 1 is max
+        # scaling_to_0 = 0.01/0.058440944333451476 # 0.01 is min
 
         color = self.hex_to_rgb(self.color)
         print('color')
@@ -838,19 +842,28 @@ class FuzzPlotly:
 
         colors = []
 
+        # Normalization part so opacity goes from 0 to 1
+        norm_max = norm.pdf(0)
+        norm_min = norm.pdf(w95)
+
 
         # Going from 0 to 95%. 0 is highest and 95% is lowest.
         for i in range(fuzz_n):
-            opacity = norm.pdf(i * step) * scaling_to_1
+            # This is just scaling so max is 1.
+            # opacity = norm.pdf(i * step) * scaling_to_1
+
+            # This is using normalized so 0 to 1 now
+            opacity = self.normalize_data(val=norm.pdf(i * step), val_max=norm_max, val_min=norm_min)
+
             color_rgba = (r_color, g_color, b_color, opacity)
             color_rgb = self.rbga_to_rgb(color_rgba)
 
-            # print(f'i: {i}')
-            # print(f'r_step: {step}')
-            # print(f'opacity: {opacity}')
-            # print(f'color_rgba: {color_rgba}')
-            # print(f'color_rgb: {color_rgb}')
-            # print()
+            print(f'i: {i}')
+            print(f'r_step: {step}')
+            print(f'opacity: {opacity}')
+            print(f'color_rgba: {color_rgba}')
+            print(f'color_rgb: {color_rgb}')
+            print()
 
             colors.append(color_rgb)
         return colors
@@ -1023,7 +1036,7 @@ if __name__ == '__main__':
 
     y_median = [2481.0, 2370.0, 2315.0, 2287.0, 2225.0, 2197.0, 2112.0, 2040.0, 2031.0, 2047.0, 2042.0, 2045.0, 2028.0, 1947.0, 1828.0, 1807.0, 1810.0, 1816.0, 1767.0, 1780.0, 1821.0, 1858.0, 1846.0, 1838.0, 1789.0, 1705.0, 1646.0, 1634.0, 1671.0, 1679.0, 1621.0, 1582.0, 1616.0, 1669.0, 1733.0, 1692.0, 1686.0, 1618.0, 1547.0, 1526.0, 1524.0, 1527.0, 1479.0, 1428.0, 1457.0, 1490.0, 1515.0, 1501.0, 1496.0, 1453.0, 1427.0, 1405.0, 1393.0, 1417.0, 1374.0, 1347.0, 1334.0, 1391.0, 1428.0, 1450.0, 1449.0]
 
-    my_fuzz_plot = FuzzPlotly(x_list=x_list, y_list=y_median, ci95p=y_p_95, ci95n=y_n_95, fuzz_size=1, fuzz_n=100)
+    my_fuzz_plot = FuzzPlotly(x_list=x_list, y_list=y_median, ci95p=y_p_95, ci95n=y_n_95, fuzz_size=1, fuzz_n=100, output='offline')
 
     my_fuzz_plot.create_data()
     my_fuzz_plot.plot()
