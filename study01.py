@@ -1,9 +1,9 @@
-from fuzzy.core import FuzzyPlotly
+from fuzzy.core import FuzzyPlotly, FuzzPlotly
 from data_gen_sarah import create_data
 
 
 if __name__ == '__main__':
-    color = '#ff0000'
+    color = '#dfe9fb'
 
     x, x_label, y_median, y_p_95, y_n_95, y_p_30, y_n_30, y_p_60, y_n_60 = create_data()
 
@@ -70,7 +70,8 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_95, ci60n=y_n_95,
         ci30p=y_p_95, ci30n=y_n_95,
-        fuzz_size=1, fuzz_n=30, color=color,
+        fuzz_size=1, fuzz_n=30,
+        # color=color,
         layout=layout,
     )
     test_plot.create_data()
@@ -80,17 +81,30 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=0.4, fuzz_n=10, color=color,
+        fuzz_size=0.4, fuzz_n=10,
+        # color=color,
         layout=layout,
     )
     test_plot_fuzzy.create_data()
+
+    ci_95_only = FuzzyPlotly(
+        x, y_median,
+        ci95p=y_p_95, ci95n=y_n_95,
+        ci60p=y_p_95, ci60n=y_n_95,
+        ci30p=y_p_95, ci30n=y_n_95,
+        fuzz_size=0, fuzz_n=1,
+        color=color,
+        layout=layout,
+    )
+    ci_95_only.create_data()
 
     median_only = FuzzyPlotly(
         x, y_median,
         ci95p=y_median, ci95n=y_median,
         ci60p=y_median, ci60n=y_median,
         ci30p=y_median, ci30n=y_median,
-        fuzz_size=0.01, fuzz_n=1, color=color,
+        fuzz_size=0.01, fuzz_n=1,
+        # color=color,
         layout=layout,
     )
     median_only.create_data()
@@ -100,7 +114,8 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=0.8, fuzz_n=20, color=color,
+        fuzz_size=0, fuzz_n=1,
+        # color=color,
         layout=layout,
     )
     solid_ci.create_data()
@@ -110,16 +125,44 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=0.8, fuzz_n=25, color=color,
+        fuzz_size=0.8, fuzz_n=25,
+        # color=color,
         layout=layout,
     )
     fuzzy_fan.create_data()
 
+    # Full fuzz
+    full_fuzz = FuzzPlotly(
+        x_list=x, y_list=y_median,
+        ci95p=y_p_95, ci95n=y_n_95,
+        fuzz_size=1, fuzz_n=100,
+        output='offline',
+        # color=color,
+        layout=layout,
+    )
+    full_fuzz.create_data()
 
-
+    ### This is done by all lines being at center only. Pull this logic out and improve for publishing.
     # median_only.plot()
+
+    ### Done by fuzz_size being so small and fuzz_n being 1 so no divisions. (or maybe 2 but fuzz is soooooo small eye can't see without impossible zooming)
     # solid_ci.plot()
+
+    ### Only need ci_95, color to be same only. (Make fuzz_size=1, fuzz_n=1?). Changing color inside Fuzzy class currently. Capture that logic.
+    ci_95_only.plot()
+    # fuzzy_fan.plot()
+    # full_fuzz.plot()
+
     # test_plot_fuzzy.plot()
     # test_plot.plot()
 
-    fuzzy_fan.plot()
+    # print('x')
+    # print(x)
+    # print('y_median')
+    # print(y_median)
+    # print('y_p_95')
+    # print(y_p_95)
+    # print('y_n_95')
+    # print(y_n_95)
+
+

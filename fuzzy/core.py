@@ -2,6 +2,7 @@ import plotly.plotly as py
 import plotly.graph_objs as go
 import plotly
 from scipy.stats import norm
+from palettable.cubehelix import Cubehelix
 
 import pandas as pd
 
@@ -78,6 +79,53 @@ y_sample_values = [8.337618963728, 8.279171746205, 8.203023291325001, 8.16982661
 
 std = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 
+layout = {
+    'showlegend': False,
+    'xaxis': {
+        'title': 'Date',
+        'titlefont': {
+            'family': 'Arial, sans-serif',
+            'size': 18,
+            'color': 'grey',
+        },
+        # 'ticktext':x_label,
+        # 'tickvals':x,
+        # 'ticktext':x_label_test,
+        # 'tickvals':x_test,
+        'showgrid':False,
+
+        'tickmode':'array',
+        'ticks': 'outside',
+        'tickangle': 45,
+        'showticklabels': True,
+        # 'ticklen': 3,
+        'tickwidth': 2,
+        'tickcolor': '#000',
+
+
+        # 'nticks': 5, #tickmode has to be auto
+
+        # 'tick0': 'hello',
+        # 'dtick': 0.5,
+
+        # 'tickformat': '%{n}f'
+        # '':,
+    },
+    'yaxis': {
+        'title': 'Unemployment (in thousands)',
+        'titlefont': {
+            'family': 'Arial, sans-serif',
+            'size': 18,
+            'color': 'grey',
+        },
+        'showgrid':False,
+        'range': [1000000/1000, 2600000/1000],
+
+    }
+}
+
+
+
 
 class FuzzyPlotly:
     def __init__(self, x_list, y_list,
@@ -152,9 +200,9 @@ class FuzzyPlotly:
         a = 1 / w_30
 
         # 1, 1, 2
-        w_30_final = w_30 * a / 2
-        w_60_final = w_60 * a / 2  # modified color
-        w_95_final = w_95 * a / 2  # modified color
+        w_30_final = w_30 * a / 1
+        w_60_final = w_60 * a / 1  # modified color
+        w_95_final = w_95 * a / 1  # modified color
 
         color_opacity = {
             'w_30': w_30_final,
@@ -246,6 +294,9 @@ class FuzzyPlotly:
 
             # print(color)
             # print('===')
+        # print(colors[0])
+        # print(colors[-1])
+        # print('')
         return colors
 
     def calc_fuzz_area(self, upper, lower, fuzz_size):
@@ -397,6 +448,8 @@ class FuzzyPlotly:
             color_w60_mid_w95,
             self.fuzz_n,
             )
+        print("colors_w60_mid")
+        print(colors_w60_mid)
 
         # Find lower
         colors_mid_w95 = self.calculate_fuzz_colors(
@@ -405,6 +458,20 @@ class FuzzyPlotly:
             self.fuzz_n,
             )
 
+        # TODO: TEMP OVERRIDE OF CENTRAL COLOURS JUST TO SEE!!!
+        # color_rgb_w95 = (255.0, 196.51278306108654, 196.51278306108654)
+        # color_rgb_w30 = (255.0, 125, 0)
+        # color_rgb_w60 = (255.0, 125, 0)
+        # color_rgb_w95 = (255.0, 125, 0)
+
+        # Another darker color
+        # color_rgb_w30 = (178, 34, 34)
+        # color_rgb_w60 = (178, 34/2, 34/2)
+        # color_rgb_w95 = (178, 34/4, 34/4)
+
+        # color_rgb_w95 = color_rgb_w60
+        # color_rgb_w60 = color_rgb_w30
+        # color_rgb_w30 = (125, 125, 124)
 
         self.create_fuzzy_shape(
             upper=self.ci95p, lower=self.ci60p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
@@ -445,7 +512,6 @@ class FuzzyPlotly:
             line={'color': "#000000", 'width': 1,}
         )
         self.data.append(median)
-
 
     def datax(self):
 
@@ -694,6 +760,7 @@ class FuzzyPlotly:
             iplot(fig, config={'displayModeBar': False})
 
 
+# For full fuzz
 class FuzzPlotly:
     def __init__(self, x_list, y_list, ci95p, ci95n,
                  fuzz_size, fuzz_n,
@@ -747,46 +814,6 @@ class FuzzPlotly:
         # print(w_ci)
         return w_ci
 
-    def create_color_opacity(self):
-        '''
-        Calculates color opacity for set confidence intervals using normal distribution to match confidence intervals
-        :return:
-        '''
-        # [0.025, 0.2, 0.35, 0.5, 0.65, 0.8, 0.975]
-        w_30 = self.calc_colour(0.65, 0.35, 0.3)
-        w_60 = self.calc_colour(0.8, 0.2, 0.3)
-        w_95 = self.calc_colour(0.975, 0.025, 0.35)
-
-        # factor used to scale to 1 (for opacity)
-        a = 1 / w_30
-
-        # 1, 1, 2
-        w_30_final = w_30 * a / 1
-        w_60_final = w_60 * a / 1  # modified color
-        w_95_final = w_95 * a / 1  # modified color
-
-        # color_opacity = {
-        #     'w_30': w_30_final,
-        #     'w_60': w_60_final,
-        #     'w_95': w_95_final,
-        # }
-        color_opacity = {
-            'w_30': 1,
-            'w_60': 0.5,
-            'w_95': 0.1,
-        }
-        print(color_opacity)
-        # print(w_30)
-        # print(w_60)
-        # print(w_95)
-        #
-        # print("")
-        #
-        # print(w_30 * a)
-        # print(w_60 * a)
-        # print(w_95 * a)
-        return color_opacity
-
     def rgb_to_rgba(self, rgb, opacity):
         '''
         Takes rgb tuple and opacity between 0-1 and return rgba tuple.
@@ -836,8 +863,8 @@ class FuzzPlotly:
         # scaling_to_0 = 0.01/0.058440944333451476 # 0.01 is min
 
         color = self.hex_to_rgb(self.color)
-        print('color')
-        print(color)
+        # print('color')
+        # print(color)
         r_color, g_color, b_color = color
 
         colors = []
@@ -846,27 +873,84 @@ class FuzzPlotly:
         norm_max = norm.pdf(0)
         norm_min = norm.pdf(w95)
 
-
         # Going from 0 to 95%. 0 is highest and 95% is lowest.
         for i in range(fuzz_n):
-            # This is just scaling so max is 1.
+            # Option 0: Purely height values from norm curve
+            # opacity = norm.pdf(i * step)
+
+            # Option 1: This is just scaling so max is 1.
+            # Multiples by "scaling_to_1" which pushes chart up so 1 is max
             # opacity = norm.pdf(i * step) * scaling_to_1
 
-            # This is using normalized so 0 to 1 now
+            # Option 2: This is using normalized so 0 to 1 now
             opacity = self.normalize_data(val=norm.pdf(i * step), val_max=norm_max, val_min=norm_min)
+
+            # Option 3: Linear?
+            # opacity = self.normalize_data(val=norm.pdf(i * step), val_max=norm_max, val_min=norm_min)
+
 
             color_rgba = (r_color, g_color, b_color, opacity)
             color_rgb = self.rbga_to_rgb(color_rgba)
 
-            print(f'i: {i}')
-            print(f'r_step: {step}')
-            print(f'opacity: {opacity}')
-            print(f'color_rgba: {color_rgba}')
-            print(f'color_rgb: {color_rgb}')
-            print()
+            # print(f'i: {i}')
+            # print(f'r_step: {step}')
+            # print(f'opacity: {opacity}')
+            # print(f'color_rgba: {color_rgba}')
+            # print(f'color_rgb: {color_rgb}')
+            # print()
 
             colors.append(color_rgb)
         return colors
+
+    # Assume it's standard normal distribution with loc=0, scale=1 (mean=0, std=1)
+
+    # Using helixCube
+    # def calculate_fuzz_color_normal(self, fuzz_n):
+    #
+    #     def norm_value_to_pos(x, a, b, c, d):
+    #         return (x-a) * ((d-c)/(b-a)) + c
+    #
+    #     w95 = 1.959964
+    #     step = w95 / fuzz_n
+    #
+    #     # Using color values from cube helix.
+    #     # my_cubehelix = Cubehelix.make(gamma=0.7, start=0.78, rotation=-0.35, sat=1, n=fuzz_n, reverse=True,
+    #     #                               min_light=0.3, max_light=0.8
+    #     #                               )
+    #     # my_cubehelix = Cubehelix.make(gamma=0.7, start_hue=200, end_hue=70, sat=1, n=fuzz_n, reverse=True,
+    #     #                               min_light=0.3, max_light=0.8
+    #     #                               )
+    #     my_cubehelix = Cubehelix.make(gamma=0.5, start=0.7, rotation=-0.3, sat=1.5, n=fuzz_n, reverse=True,
+    #                                   min_light=0.3, max_light=1
+    #                                   )
+    #     # print(my_cubehelix.colors)
+    #     # print(len(my_cubehelix.colors))
+    #     cubehelix_colors = my_cubehelix.colors
+    #
+    #     color = self.hex_to_rgb(self.color)
+    #     # print('color')
+    #     # print(color)
+    #     r_color, g_color, b_color = color
+    #
+    #     colors = []
+    #
+    #     # Normalization part so opacity goes from 0 to 1
+    #     norm_max = norm.pdf(0)
+    #     norm_min = norm.pdf(w95)
+    #
+    #     # Going from 0 to 95%. 0 is highest and 95% is lowest.
+    #     for i in range(fuzz_n):
+    #         opacity = self.normalize_data(val=norm.pdf(i * step), val_max=norm_max, val_min=norm_min)
+    #         pos = int(round(norm_value_to_pos(x=opacity, a=0, b=1, c=0, d=fuzz_n-1)))
+    #         print(type(pos))
+    #         print(pos)
+    #         print(type(cubehelix_colors[pos]))
+    #         print(tuple(cubehelix_colors[pos]))
+    #         colors.append(tuple(cubehelix_colors[pos]))
+    #
+    #     # print(f'len colors (from norm): {len(colors)}')
+    #     # print(f'colors (from norm): {colors}')
+    #     return colors
 
 
     # Finds color between two colors using gradient
@@ -997,19 +1081,19 @@ class FuzzPlotly:
             fuzz_colors=colors_center_rgb_w95,
         )
 
-        # median = go.Scatter(
-        #     x=self.generate_x_line_data(),
-        #     y=self.generate_y_line_data(self.y_list, self.y_list),
-        #     mode='lines',
-        #     # legendgroup='group 95%',
-        #     name='drawing shape',
-        #     fill='tozeroy',
-        #     fillcolor="#000000",
-        #     hoverinfo='none',
-        #     marker={'size': 1, 'opacity': 0},
-        #     line={'color': "#000000", 'width': 1,}
-        # )
-        # self.data.append(median)
+        median = go.Scatter(
+            x=self.generate_x_line_data(),
+            y=self.generate_y_line_data(self.y_list, self.y_list),
+            mode='lines',
+            # legendgroup='group 95%',
+            name='drawing shape',
+            fill='tozeroy',
+            fillcolor="#000000",
+            hoverinfo='none',
+            marker={'size': 1, 'opacity': 0},
+            line={'color': "#000000", 'width': 1,},
+        )
+        self.data.append(median)
 
     def plot(self):
         fig = go.Figure(data=self.data, layout=self.layout)
@@ -1024,6 +1108,7 @@ class FuzzPlotly:
             iplot(fig, config={'displayModeBar': False})
 
 
+# For Full fuzz "FuzzPlotly" Trying
 if __name__ == '__main__':
 
     x_list = ['Aug-Oct 2013', 'Sep-Nov 2013', 'Oct-Dec 2013', 'Nov-Jan 2014', 'Dec-Feb 2014', 'Jan-Mar 2014', 'Feb-Apr 2014', 'Mar-May 2014', 'Apr-Jun 2014', 'May-Jul 2014', 'Jun-Aug 2014', 'Jul-Sep 2014', 'Aug-Oct 2014', 'Sep-Nov 2014', 'Oct-Dec 2014', 'Nov-Jan 2015', 'Dec-Feb 2015', 'Jan-Mar 2015', 'Feb-Apr 2015', 'Mar-May 2015', 'Apr-Jun 2015', 'May-Jul 2015', 'Jun-Aug 2015', 'Jul-Sep 2015', 'Aug-Oct 2015', 'Sep-Nov 2015', 'Oct-Dec 2015', 'Nov-Jan 2016', 'Dec-Feb 2016', 'Jan-Mar 2016', 'Feb-Apr 2016', 'Mar-May 2016', 'Apr-Jun 2016', 'May-Jul 2016', 'Jun-Aug 2016', 'Jul-Sep 2016', 'Aug-Oct 2016', 'Sep-Nov 2016', 'Oct-Dec 2016', 'Nov-Jan 2017', 'Dec-Feb 2017', 'Jan-Mar 2017', 'Feb-Apr 2017', 'Mar-May 2017', 'Apr-Jun 2017', 'May-Jul 2017', 'Jun-Aug 2017', 'Jul-Sep 2017', 'Aug-Oct 2017', 'Sep-Nov 2017', 'Oct-Dec 2017', 'Nov-Jan 2018', 'Dec-Feb 2018', 'Jan-Mar 2018', 'Feb-Apr 2018', 'Mar-May 2018', 'Apr-Jun 2018', 'May-Jul 2018', 'Jun-Aug 2018', 'Jul-Sep 2018', 'Aug-Oct 2018']
@@ -1036,7 +1121,7 @@ if __name__ == '__main__':
 
     y_median = [2481.0, 2370.0, 2315.0, 2287.0, 2225.0, 2197.0, 2112.0, 2040.0, 2031.0, 2047.0, 2042.0, 2045.0, 2028.0, 1947.0, 1828.0, 1807.0, 1810.0, 1816.0, 1767.0, 1780.0, 1821.0, 1858.0, 1846.0, 1838.0, 1789.0, 1705.0, 1646.0, 1634.0, 1671.0, 1679.0, 1621.0, 1582.0, 1616.0, 1669.0, 1733.0, 1692.0, 1686.0, 1618.0, 1547.0, 1526.0, 1524.0, 1527.0, 1479.0, 1428.0, 1457.0, 1490.0, 1515.0, 1501.0, 1496.0, 1453.0, 1427.0, 1405.0, 1393.0, 1417.0, 1374.0, 1347.0, 1334.0, 1391.0, 1428.0, 1450.0, 1449.0]
 
-    my_fuzz_plot = FuzzPlotly(x_list=x_list, y_list=y_median, ci95p=y_p_95, ci95n=y_n_95, fuzz_size=1, fuzz_n=100, output='offline')
+    my_fuzz_plot = FuzzPlotly(x_list=x_list, y_list=y_median, ci95p=y_p_95, ci95n=y_n_95, fuzz_size=1, fuzz_n=100, output='offline', layout=layout)
 
     my_fuzz_plot.create_data()
     my_fuzz_plot.plot()
