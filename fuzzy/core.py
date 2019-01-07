@@ -214,7 +214,7 @@ class FuzzyPlotly:
         #     'w_60': 0.7,
         #     'w_95': 0.2,
         # }
-        print(color_opacity)
+        # print(color_opacity)
         # print(w_30)
         # print(w_60)
         # print(w_95)
@@ -263,28 +263,138 @@ class FuzzyPlotly:
         # print(rgb)
         return rgb
 
-    # Finds color between two colors using gradient
-    # takes rgb only.?
-    # go from low color to high
-    def calculate_fuzz_colors(self, color_a, color_b, fuzz_n):
+    # # Finds color between two colors using gradient
+    # # takes rgb only.?
+    # # go from low color to high
+    # def calculate_fuzz_colors(self, color_a, color_b, fuzz_n):
+    #     color_a_r, color_a_g, color_a_b = color_a
+    #     color_b_r, color_b_g, color_b_b = color_b
+    #     colors = []
+    #     fuzz_n = int(fuzz_n)
+    #     # print(f'color_a: {color_a}')
+    #     # print(f'color_b: {color_b}')
+    #     r_step = abs(( - color_a_r + color_b_r))/fuzz_n
+    #     g_step = abs(( - color_a_g + color_b_g))/fuzz_n
+    #     b_step = abs(( - color_a_b + color_b_b))/fuzz_n
+    #
+    #     # print(f'color_a_r: {color_a_r}')
+    #     # print(f'color_b_r: {color_b_r}')
+    #     # print(f'self.fuzz_n: {self.fuzz_n}')
+    #     # print(f'r_step: {r_step}')
+    #     # print(f'r_step: {r_step}')
+    #
+    #     for i in range(fuzz_n):
+    #         color = ((color_a_r + i*r_step), (color_a_g + i*g_step), (color_a_b + i*b_step), )
+    #
+    #         # print(f'i: {i}')
+    #         # print(f'r_step: {r_step}')
+    #         # print(f'color_a_r: {color_a_r}')
+    #         # color = color_a_r + (i*r_step)
+    #         colors.append(color)
+    #
+    #         # print(color)
+    #         # print('===')
+    #     # print(colors[0])
+    #     # print(colors[-1])
+    #     # print('')
+    #     return colors
+
+    # Using tween to ease start and end
+    def calculate_fuzz_colors(self, color_a, color_b, fuzz_n, ease='ease-in'):
+
+        # ease = 'ease-linear' # WARNING FORCES LINEAR ON ALL!!!
+
         color_a_r, color_a_g, color_a_b = color_a
         color_b_r, color_b_g, color_b_b = color_b
         colors = []
         fuzz_n = int(fuzz_n)
-        # print(f'color_a: {color_a}')
-        # print(f'color_b: {color_b}')
-        r_step = abs(( - color_a_r + color_b_r))/fuzz_n
-        g_step = abs(( - color_a_g + color_b_g))/fuzz_n
-        b_step = abs(( - color_a_b + color_b_b))/fuzz_n
+        print(f'color_a: {color_a}')
+        print(f'color_b: {color_b}')
+        print(f'ease is {ease}')
 
+        # r_step = abs(( - color_a_r + color_b_r))/fuzz_n
+        # g_step = abs(( - color_a_g + color_b_g))/fuzz_n
+        # b_step = abs(( - color_a_b + color_b_b))/fuzz_n
+        #
         # print(f'color_a_r: {color_a_r}')
         # print(f'color_b_r: {color_b_r}')
         # print(f'self.fuzz_n: {self.fuzz_n}')
         # print(f'r_step: {r_step}')
         # print(f'r_step: {r_step}')
 
+        # t = current strip (i in loop)
+        # d = total size of strip
+        # b = beginning value (0=start from 0?)
+        # c = .? (lets try 1)
+
+        # Linear. Same as what I was doing before.
+        def ease_in_linear(t, b, c, d):
+            print(f'{c}*({t}/{d})*{1}+{b} = {c*(t/d)*1+b}')
+            return c*(t/d)*1+b
+
+        def ease_in_quad(t, b, c, d):
+            # print(f'{c}*({t}/{d})*{t}+{b} = {c*(t/d)*t+b}')
+
+            new = t/d
+            t_at_pos = c*(t/d)*new*new+b
+            # print(int(round(t_at_pos)))
+            return int(round(t_at_pos))
+            # return int(111)
+
+        def ease_out_quad(t, b, c, d):
+            # print(f'{c}*({t}/{d})*{t}+{b} = {c*(t/d)*t+b}')
+
+            new = (t/d)-1
+            t_at_pos = c*((new)*new*new + 1)+b
+            # print(int(round(t_at_pos)))
+            return int(round(t_at_pos))
+
         for i in range(fuzz_n):
-            color = ((color_a_r + i*r_step), (color_a_g + i*g_step), (color_a_b + i*b_step), )
+            if ease=='ease-in':
+                color_new_r = ease_in_quad(t=i, b=color_a[0],
+                                      c=abs(( - color_a_r + color_b_r)),
+                                      d=fuzz_n)
+                # print('=ease_1=' + str(i))
+                # print(color_new_r)
+
+                color_new_g = ease_in_quad(t=i, b=color_a[1],
+                                           c=abs(( - color_a_g + color_b_g)),
+                                           d=fuzz_n)
+
+                color_new_b = ease_in_quad(t=i, b=color_a[2],
+                                           c=abs(( - color_a_b + color_b_b)),
+                                           d=fuzz_n)
+            if ease=='ease-out':
+                color_new_r = ease_out_quad(t=i, b=color_a[0],
+                                      c=abs(( - color_a_r + color_b_r)),
+                                      d=fuzz_n)
+                # print('=ease_1=' + str(i))
+                # print(color_new_r)
+
+                color_new_g = ease_out_quad(t=i, b=color_a[1],
+                                           c=abs(( - color_a_g + color_b_g)),
+                                           d=fuzz_n)
+
+                color_new_b = ease_out_quad(t=i, b=color_a[2],
+                                           c=abs(( - color_a_b + color_b_b)),
+                                           d=fuzz_n)
+            if ease=='ease-linear':
+                color_new_r = ease_in_linear(t=i, b=color_a[0],
+                                            c=abs(( - color_a_r + color_b_r)),
+                                            d=fuzz_n)
+                # print('=ease_1=' + str(i))
+
+                color_new_g = ease_in_linear(t=i, b=color_a[1],
+                                            c=abs(( - color_a_g + color_b_g)),
+                                            d=fuzz_n)
+
+                color_new_b = ease_in_linear(t=i, b=color_a[2],
+                                            c=abs(( - color_a_b + color_b_b)),
+                                            d=fuzz_n)
+
+            color = (color_new_r, color_new_g, color_new_b)
+
+            # print(color_a_r + i*
 
             # print(f'i: {i}')
             # print(f'r_step: {r_step}')
@@ -296,7 +406,7 @@ class FuzzyPlotly:
             # print('===')
         # print(colors[0])
         # print(colors[-1])
-        # print('')
+        print('')
         return colors
 
     def calc_fuzz_area(self, upper, lower, fuzz_size):
@@ -393,23 +503,24 @@ class FuzzyPlotly:
         color_rgb_w60 = self.rbga_to_rgb(color_rgba_w60)
         color_rgb_w30 = self.rbga_to_rgb(color_rgba_w30)
 
-        colors_w30_w60 = self.calculate_fuzz_colors(
-            color_rgb_w30,
-            color_rgb_w60,
-            self.fuzz_n,
-        )
-        colors_w60_w95 = self.calculate_fuzz_colors(
-            color_rgb_w60,
-            color_rgb_w95,
-            self.fuzz_n,
-        )
-        # assumes max is white?
+        # colors_w30_w60 = self.calculate_fuzz_colors(
+        #     color_rgb_w30,
+        #     color_rgb_w60,
+        #     self.fuzz_n,
+        # )
+        # colors_w60_w95 = self.calculate_fuzz_colors(
+        #     color_rgb_w60,
+        #     color_rgb_w95,
+        #     self.fuzz_n,
+        # )
+        # # assumes max is white?
         colors_w95_w100 = self.calculate_fuzz_colors(
             color_rgb_w95,
             (255, 255, 255),
             self.fuzz_n,
+            'ease-out',
         )
-
+        #
         # Find mid point
         color_w30_mid_w60 = self.calculate_fuzz_colors(
             color_rgb_w30,
@@ -422,18 +533,25 @@ class FuzzyPlotly:
             color_rgb_w30,
             color_w30_mid_w60,
             self.fuzz_n,
+            'ease-in',
         )
+        # print('color_rgb_w30')
+        # print(color_rgb_w30)
+        # print('color_w30_mid_w60')
+        # print(color_w30_mid_w60)
 
         # Find lower
         colors_mid_w60 = self.calculate_fuzz_colors(
             color_w30_mid_w60,
             color_rgb_w60,
             self.fuzz_n,
+            'ease-out',
         )
-        # print(color_w30_mid_w60)
-        # print(colors_w30_mid)
+        # # print(color_w30_mid_w60)
+        # # print(colors_w30_mid)
+        # print('color_mid_w60')
         # print(colors_mid_w60)
-        # print(colors_w30_w60)
+        # # print(colors_w30_w60)
 
         # Find mid point
         color_w60_mid_w95 = self.calculate_fuzz_colors(
@@ -447,15 +565,17 @@ class FuzzyPlotly:
             color_rgb_w60,
             color_w60_mid_w95,
             self.fuzz_n,
+            'ease-in',
             )
-        print("colors_w60_mid")
-        print(colors_w60_mid)
+        # print("colors_w60_mid")
+        # print(colors_w60_mid)
 
         # Find lower
         colors_mid_w95 = self.calculate_fuzz_colors(
             color_w60_mid_w95,
             color_rgb_w95,
             self.fuzz_n,
+            'ease-out',
             )
 
         # TODO: TEMP OVERRIDE OF CENTRAL COLOURS JUST TO SEE!!!
@@ -473,6 +593,7 @@ class FuzzyPlotly:
         # color_rgb_w60 = color_rgb_w30
         # color_rgb_w30 = (125, 125, 124)
 
+        # Top part confidence interval colors are reverse of bottom colors. Like mirror image.
         self.create_fuzzy_shape(
             upper=self.ci95p, lower=self.ci60p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
             color_center={"color": f'rgb{color_rgb_w95}', "color_edge": f'rgb{color_rgb_w95}'},
@@ -499,6 +620,24 @@ class FuzzyPlotly:
             fuzz_colors_upper=list(reversed(colors_mid_w95)), fuzz_colors_lower=colors_w95_w100,
         )
 
+        # # W60 p Line
+        # print('reversed - colors_mid_w60 (ease out)')
+        # print(list(reversed(colors_mid_w60)))
+        # print('colors_w60_mid (ease in)')
+        # print(colors_w60_mid)
+
+        # # W60 Line
+        # print('colors_mid_w60 (ease out)')
+        # print(colors_mid_w60)
+        # print('colors_w60_mid (ease in)')
+        # print(colors_w60_mid)
+
+        # # W95 Line, Bottom line
+        # print('colors_mid_w95 (ease out)')
+        # print(colors_mid_w95)
+        # print('colors_w95_w100 (ease out (both? maybe good enough))')
+        # print(colors_w95_w100)
+
         median = go.Scatter(
             x=self.generate_x_line_data(),
             y=self.generate_y_line_data(self.y_list, self.y_list),
@@ -511,7 +650,7 @@ class FuzzyPlotly:
             marker={'size': 1, 'opacity': 0},
             line={'color': "#000000", 'width': 1,}
         )
-        self.data.append(median)
+        # self.data.append(median)
 
     def datax(self):
 
@@ -1127,110 +1266,111 @@ if __name__ == '__main__':
     my_fuzz_plot.plot()
 
 
+# Fuzzy Plot
+if __name__ == '__main__':
 
-# if __name__ == '__main__':
-#
-#     df = pd.read_csv("../csv/unemployment 2012-2017.csv")
-#     std = list(df['sd'])
-#     y = list(df['People'])
-#
-#     y_n_95 = []
-#     y_p_95 = []
-#
-#     y_n_60 = []
-#     y_p_60 = []
-#
-#     y_n_30 = []
-#     y_p_30 = []
-#
-#     y_median = []
-#
-#     def generate_interval_point(p, center, std, offset=0):
-#         point = [p+offset]
-#         boundary_point = norm.ppf(point, loc=center, scale=std)
-#         # print(f'point: {point}, p: {p}, center: {center}, std: {std}, offset: {offset} ==> boundary_point: {boundary_point}')
-#         return boundary_point[0]
-#
-#     for i in range(len(y)):
-#         y_n_95.append(generate_interval_point(0.025, y[i], std[i]))
-#         y_p_95.append(generate_interval_point(0.975, y[i], std[i]))
-#
-#         y_n_60.append(generate_interval_point(0.2, y[i], std[i]))
-#         y_p_60.append(generate_interval_point(0.8, y[i], std[i]))
-#
-#         y_n_30.append(generate_interval_point(0.35, y[i], std[i]))
-#         y_p_30.append(generate_interval_point(0.65, y[i], std[i]))
-#
-#         y_median.append(generate_interval_point(0.5, y[i], std[i]))
-#
-#     # print(y_n_95)
-#
-#     # Need to add now
-#     # n = Number of lines, u = Fuzziness size in %. 1 is 100%, 0.1 is 10%.
-#
-#
-#     # # Discrete lines
-#     # test_plot.generate_shape(y_p_95, y_p_60)
-#     # test_plot.generate_shape(y_p_60, y_p_30)
-#     #
-#     # test_plot.generate_shape(y_p_30, y_n_30)
-#     #
-#     # test_plot.generate_shape(y_n_30, y_n_60)
-#     # test_plot.generate_shape(y_n_60, y_n_95)
-#
-#
-#     # With fuzz boundaries but no fuzzying
-#     # areas_p_95 = test_plot.calc_fuzz_area(y_p_95, y_p_60, fuzz_size=0.1, fuzz_n=2)
-#     #
-#     # fuzz_p_95_up_lower = [upper - area for (upper, area) in zip(y_p_95, areas_p_95)]
-#     # fuzz_p_95_down_upper = [upper + area for (upper, area) in zip(y_p_60, areas_p_95)]
-#     #
-#     # print(y_p_95)
-#     # print(fuzz_p_95_up_lower)
-#     # # print(fuzz_p_95_down_upper)
-#     # # print(y_p_60)
-#     #
-#     # # print(len(y_p_95))
-#     # # print(len(fuzz_95_up_lower))
-#     # # print(len(fuzz_95_down_upper))
-#     # # print(len(y_p_60))
-#     #
-#     # test_plot.generate_shape(y_p_95, fuzz_p_95_up_lower)
-#     # test_plot.generate_shape(fuzz_p_95_up_lower, fuzz_p_95_down_upper)
-#     # test_plot.generate_shape(fuzz_p_95_down_upper, y_p_60)
-#     #
-#     # # test_plot.generate_shape(y_p_30, y_n_30)
-#
-#
-#     # Fuzzy plot example 01
-#     test_plot = FuzzyPlotly(
-#         x_sample_values, y_median,
-#         ci95p=y_p_95, ci95n=y_n_95,
-#         ci60p=y_p_60, ci60n=y_n_60,
-#         ci30p=y_p_30, ci30n=y_n_30,
-#         fuzz_size=1, fuzz_n=20, color="#0000FF"
-#                 )
-#     test_plot.create_data()
-#     test_plot.plot()
-#
-#     # Fuzzy plot example 02
-#     # test_plot2 = FuzzyPlotly(
-#     #     x_sample_values, y_median,
-#     #     ci95p=y_p_95, ci95n=y_n_95,
-#     #     ci60p=y_p_60, ci60n=y_n_60,
-#     #     ci30p=y_p_30, ci30n=y_n_30,
-#     #     fuzz_size=0.8, fuzz_n=10, color="#0000FF"
-#     #             )
-#     # test_plot2.create_data()
-#     # test_plot2.plot()
-#
-#     # # Discrete plot example 03
-#     # test_plot_discrete = FuzzyPlotly(
-#     #     x_sample_values, y_median,
-#     #     ci95p=y_p_95, ci95n=y_n_95,
-#     #     ci60p=y_p_60, ci60n=y_n_60,
-#     #     ci30p=y_p_30, ci30n=y_n_30,
-#     #     fuzz_size=0.01, fuzz_n=1, color="#0000FF"
-#     # )
-#     # test_plot_discrete.create_data()
-#     # test_plot_discrete.plot()
+    df = pd.read_csv("../csv/unemployment 2012-2017.csv")
+    std = list(df['sd'])
+    y = list(df['People'])
+
+    y_n_95 = []
+    y_p_95 = []
+
+    y_n_60 = []
+    y_p_60 = []
+
+    y_n_30 = []
+    y_p_30 = []
+
+    y_median = []
+
+    def generate_interval_point(p, center, std, offset=0):
+        point = [p+offset]
+        boundary_point = norm.ppf(point, loc=center, scale=std)
+        # print(f'point: {point}, p: {p}, center: {center}, std: {std}, offset: {offset} ==> boundary_point: {boundary_point}')
+        return boundary_point[0]
+
+    for i in range(len(y)):
+        y_n_95.append(generate_interval_point(0.025, y[i], std[i]))
+        y_p_95.append(generate_interval_point(0.975, y[i], std[i]))
+
+        y_n_60.append(generate_interval_point(0.2, y[i], std[i]))
+        y_p_60.append(generate_interval_point(0.8, y[i], std[i]))
+
+        y_n_30.append(generate_interval_point(0.35, y[i], std[i]))
+        y_p_30.append(generate_interval_point(0.65, y[i], std[i]))
+
+        y_median.append(generate_interval_point(0.5, y[i], std[i]))
+
+    # print(y_n_95)
+
+    # Need to add now
+    # n = Number of lines, u = Fuzziness size in %. 1 is 100%, 0.1 is 10%.
+
+
+    # # Discrete lines
+    # test_plot.generate_shape(y_p_95, y_p_60)
+    # test_plot.generate_shape(y_p_60, y_p_30)
+    #
+    # test_plot.generate_shape(y_p_30, y_n_30)
+    #
+    # test_plot.generate_shape(y_n_30, y_n_60)
+    # test_plot.generate_shape(y_n_60, y_n_95)
+
+
+    # With fuzz boundaries but no fuzzying
+    # areas_p_95 = test_plot.calc_fuzz_area(y_p_95, y_p_60, fuzz_size=0.1, fuzz_n=2)
+    #
+    # fuzz_p_95_up_lower = [upper - area for (upper, area) in zip(y_p_95, areas_p_95)]
+    # fuzz_p_95_down_upper = [upper + area for (upper, area) in zip(y_p_60, areas_p_95)]
+    #
+    # print(y_p_95)
+    # print(fuzz_p_95_up_lower)
+    # # print(fuzz_p_95_down_upper)
+    # # print(y_p_60)
+    #
+    # # print(len(y_p_95))
+    # # print(len(fuzz_95_up_lower))
+    # # print(len(fuzz_95_down_upper))
+    # # print(len(y_p_60))
+    #
+    # test_plot.generate_shape(y_p_95, fuzz_p_95_up_lower)
+    # test_plot.generate_shape(fuzz_p_95_up_lower, fuzz_p_95_down_upper)
+    # test_plot.generate_shape(fuzz_p_95_down_upper, y_p_60)
+    #
+    # # test_plot.generate_shape(y_p_30, y_n_30)
+
+
+    # Fuzzy plot example 01
+    test_plot = FuzzyPlotly(
+        x_sample_values, y_median,
+        ci95p=y_p_95, ci95n=y_n_95,
+        ci60p=y_p_60, ci60n=y_n_60,
+        ci30p=y_p_30, ci30n=y_n_30,
+        # fuzz_size=0.7, fuzz_n=10, color="#0000FF"
+        fuzz_size=1, fuzz_n=60, color="#0000FF"
+                )
+    test_plot.create_data()
+    test_plot.plot()
+
+    # Fuzzy plot example 02
+    # test_plot2 = FuzzyPlotly(
+    #     x_sample_values, y_median,
+    #     ci95p=y_p_95, ci95n=y_n_95,
+    #     ci60p=y_p_60, ci60n=y_n_60,
+    #     ci30p=y_p_30, ci30n=y_n_30,
+    #     fuzz_size=0.8, fuzz_n=10, color="#0000FF"
+    #             )
+    # test_plot2.create_data()
+    # test_plot2.plot()
+
+    # # Discrete plot example 03
+    # test_plot_discrete = FuzzyPlotly(
+    #     x_sample_values, y_median,
+    #     ci95p=y_p_95, ci95n=y_n_95,
+    #     ci60p=y_p_60, ci60n=y_n_60,
+    #     ci30p=y_p_30, ci30n=y_n_30,
+    #     fuzz_size=0.01, fuzz_n=1, color="#0000FF"
+    # )
+    # test_plot_discrete.create_data()
+    # test_plot_discrete.plot()
