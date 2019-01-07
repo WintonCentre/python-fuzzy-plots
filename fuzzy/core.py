@@ -4,7 +4,14 @@ import plotly
 from scipy.stats import norm
 from palettable.cubehelix import Cubehelix
 
+import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
+
+
+y_plot_vals_r = []
+y_plot_vals_g = []
+y_plot_vals_b = []
 
 # hard coded e for now
 e = 0.05
@@ -211,8 +218,8 @@ class FuzzyPlotly:
         }
         # color_opacity = {
         #     'w_30': 1,
-        #     'w_60': 0.7,
-        #     'w_95': 0.2,
+        #     'w_60': 0.6,
+        #     'w_95': 0.1,
         # }
         # print(color_opacity)
         # print(w_30)
@@ -329,10 +336,10 @@ class FuzzyPlotly:
 
         # Linear. Same as what I was doing before.
         def ease_in_linear(t, b, c, d):
-            print(f'{c}*({t}/{d})*{1}+{b} = {c*(t/d)*1+b}')
+            # print(f'{c}*({t}/{d})*{1}+{b} = {c*(t/d)*1+b}')
             return c*(t/d)*1+b
 
-        def ease_in_quad(t, b, c, d):
+        def ease_in_cube(t, b, c, d):
             # print(f'{c}*({t}/{d})*{t}+{b} = {c*(t/d)*t+b}')
 
             new = t/d
@@ -341,7 +348,7 @@ class FuzzyPlotly:
             return int(round(t_at_pos))
             # return int(111)
 
-        def ease_out_quad(t, b, c, d):
+        def ease_out_cube(t, b, c, d):
             # print(f'{c}*({t}/{d})*{t}+{b} = {c*(t/d)*t+b}')
 
             new = (t/d)-1
@@ -349,36 +356,53 @@ class FuzzyPlotly:
             # print(int(round(t_at_pos)))
             return int(round(t_at_pos))
 
+        def ease_in_quad(t, b, c, d):
+            # print(f'{c}*({t}/{d})*{t}+{b} = {c*(t/d)*t+b}')
+
+            new = t/d
+            t_at_pos = c*(t/d)*new+b
+            # print(int(round(t_at_pos)))
+            return int(round(t_at_pos))
+            # return int(111)
+
+        def ease_out_quad(t, b, c, d):
+            # print(f'{c}*({t}/{d})*{t}+{b} = {c*(t/d)*t+b}')
+
+            new = (t/d)
+            t_at_pos = -c*((new)*(new-2))+b
+            # print(int(round(t_at_pos)))
+            return int(round(t_at_pos))
+
         for i in range(fuzz_n):
-            if ease=='ease-in':
-                color_new_r = ease_in_quad(t=i, b=color_a[0],
+            if ease == 'ease-in':
+                color_new_r = ease_in_cube(t=i, b=color_a[0],
                                       c=abs(( - color_a_r + color_b_r)),
                                       d=fuzz_n)
                 # print('=ease_1=' + str(i))
                 # print(color_new_r)
 
-                color_new_g = ease_in_quad(t=i, b=color_a[1],
+                color_new_g = ease_in_cube(t=i, b=color_a[1],
                                            c=abs(( - color_a_g + color_b_g)),
                                            d=fuzz_n)
 
-                color_new_b = ease_in_quad(t=i, b=color_a[2],
+                color_new_b = ease_in_cube(t=i, b=color_a[2],
                                            c=abs(( - color_a_b + color_b_b)),
                                            d=fuzz_n)
-            if ease=='ease-out':
-                color_new_r = ease_out_quad(t=i, b=color_a[0],
+            if ease == 'ease-out':
+                color_new_r = ease_out_cube(t=i, b=color_a[0],
                                       c=abs(( - color_a_r + color_b_r)),
                                       d=fuzz_n)
                 # print('=ease_1=' + str(i))
                 # print(color_new_r)
 
-                color_new_g = ease_out_quad(t=i, b=color_a[1],
+                color_new_g = ease_out_cube(t=i, b=color_a[1],
                                            c=abs(( - color_a_g + color_b_g)),
                                            d=fuzz_n)
 
-                color_new_b = ease_out_quad(t=i, b=color_a[2],
+                color_new_b = ease_out_cube(t=i, b=color_a[2],
                                            c=abs(( - color_a_b + color_b_b)),
                                            d=fuzz_n)
-            if ease=='ease-linear':
+            if ease == 'ease-linear':
                 color_new_r = ease_in_linear(t=i, b=color_a[0],
                                             c=abs(( - color_a_r + color_b_r)),
                                             d=fuzz_n)
@@ -476,14 +500,26 @@ class FuzzyPlotly:
             # print(f'fuzz_n :{fuzz_n}')
             # print(f'len(fuzz_colors_upper) :{len(fuzz_colors_upper)}')
             # Upper fuzz
+            # Building from top to bottom.
+            # Color is reversed. Going from last to first
             cur_up_upper = [upper - (area*(i-1)) for (upper, area) in zip(upper, area_per_fuzz)]
             cur_up_lower = [upper - (area*(i)) for (upper, area) in zip(upper, area_per_fuzz)]
             self.generate_shape(cur_up_upper, cur_up_lower, {"color": f'rgb{fuzz_colors_upper[fuzz_n-i]}', "color_edge": f'rgb{fuzz_colors_upper[fuzz_n-i]}'})
+            # print('cur_up_upper')
+            # print('cur_up_lower')
+            # print(cur_up_upper)
+            # print(cur_up_lower)
 
             # Lower fuzz - Building from bottom to top
             cur_down_upper = [upper + (area*(i)) for (upper, area) in zip(lower, area_per_fuzz)]
             cur_down_lower = [upper + (area*(i-1)) for (upper, area) in zip(lower, area_per_fuzz)]
-            self.generate_shape(cur_down_upper, cur_down_lower, {"color": f'rgb{fuzz_colors_lower[fuzz_n-i]}', "color_edge": f'rgb{fuzz_colors_lower[fuzz_n-i]}'})
+            self.generate_shape(cur_down_upper, cur_down_lower, {"color": f'rgb{fuzz_colors_lower[i-1]}', "color_edge": f'rgb{fuzz_colors_lower[i-1]}'})
+
+            # print('cur_down_upper')
+            # print('cur_down_lower')
+            # print(cur_down_upper)
+            # print(cur_down_lower)
+
 
         # Central Main shape
         fuzz_main_up_lower = [upper - area for (upper, area) in zip(upper, areas_upper)]
@@ -518,17 +554,36 @@ class FuzzyPlotly:
             color_rgb_w95,
             (255, 255, 255),
             self.fuzz_n,
-            'ease-out',
+            'ease-in',
         )
         #
         # Find mid point
-        color_w30_mid_w60 = self.calculate_fuzz_colors(
-            color_rgb_w30,
-            color_rgb_w60,
-            self.fuzz_n,
-        )[int(self.fuzz_n/2)]
+
+        # Giving incorrect mid point!!!
+        # color_w30_mid_w60 = self.calculate_fuzz_colors(
+        #     color_rgb_w30,
+        #     color_rgb_w60,
+        #     self.fuzz_n,
+        # )[int(self.fuzz_n/2)]
+
+        color_w30_mid_w60 = ((color_rgb_w30[0]+color_rgb_w60[0])/2,
+                             (color_rgb_w30[1]+color_rgb_w60[1])/2,
+                             (color_rgb_w30[2]+color_rgb_w60[2])/2,
+                             )
+
+        # # TODO: Testing code here
+        print('color_rgb_w30')
+        print(color_rgb_w30)
+
+        print('color_w30_mid_w60')
+        print(color_w30_mid_w60)
+
+        print('color_rgb_w60')
+        print(color_rgb_w60)
+
 
         # Find upper
+        # color_w30_mid_w60 = (255,255,255) # Testing to see if I see visual difference
         colors_w30_mid = self.calculate_fuzz_colors(
             color_rgb_w30,
             color_w30_mid_w60,
@@ -554,11 +609,25 @@ class FuzzyPlotly:
         # # print(colors_w30_w60)
 
         # Find mid point
-        color_w60_mid_w95 = self.calculate_fuzz_colors(
-            color_rgb_w60,
-            color_rgb_w95,
-            self.fuzz_n,
-        )[int(self.fuzz_n/2)]
+        # color_w60_mid_w95 = self.calculate_fuzz_colors(
+        #     color_rgb_w60,
+        #     color_rgb_w95,
+        #     self.fuzz_n,
+        # )[int(self.fuzz_n/2)]
+
+        color_w60_mid_w95 = ((color_rgb_w95[0]+color_rgb_w60[0])/2,
+                             (color_rgb_w95[1]+color_rgb_w60[1])/2,
+                             (color_rgb_w95[2]+color_rgb_w60[2])/2,
+                             )
+
+        print('==color_rgb_w95==')
+        print(color_rgb_w95)
+
+        print('color_w60_mid_w95')
+        print(color_w60_mid_w95)
+
+        print('color_rgb_w60')
+        print(color_rgb_w60)
 
         # Find upper
         colors_w60_mid = self.calculate_fuzz_colors(
@@ -597,46 +666,80 @@ class FuzzyPlotly:
         self.create_fuzzy_shape(
             upper=self.ci95p, lower=self.ci60p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
             color_center={"color": f'rgb{color_rgb_w95}', "color_edge": f'rgb{color_rgb_w95}'},
-            fuzz_colors_upper=colors_w95_w100, fuzz_colors_lower=list(reversed(colors_mid_w95)),
+            fuzz_colors_upper=colors_w95_w100, fuzz_colors_lower=list((colors_mid_w95)),
         )
         self.create_fuzzy_shape(
             upper=self.ci60p, lower=self.ci30p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
             color_center={"color": f'rgb{color_rgb_w60}', "color_edge": f'rgb{color_rgb_w60}'},
-            fuzz_colors_upper=colors_w60_mid, fuzz_colors_lower=list(reversed(colors_mid_w60)),
+            fuzz_colors_upper=colors_w60_mid, fuzz_colors_lower=list((colors_mid_w60)),
         )
         self.create_fuzzy_shape(
             upper=self.ci30p, lower=self.ci30n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
             color_center={"color": f'rgb{color_rgb_w30}', "color_edge": f'rgb{color_rgb_w30}'},
-            fuzz_colors_upper=colors_w30_mid, fuzz_colors_lower=colors_w30_mid,
+            fuzz_colors_upper=colors_w30_mid, fuzz_colors_lower=list(reversed(colors_w30_mid)),
         )
         self.create_fuzzy_shape(
             upper=self.ci30n, lower=self.ci60n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
             color_center={"color": f'rgb{color_rgb_w60}', "color_edge": f'rgb{color_rgb_w60}'},
-            fuzz_colors_upper=list(reversed(colors_mid_w60)), fuzz_colors_lower=colors_w60_mid,
+            fuzz_colors_upper=list(reversed(colors_mid_w60)), fuzz_colors_lower=list(reversed(colors_w60_mid)),
         )
         self.create_fuzzy_shape(
             upper=self.ci60n, lower=self.ci95n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
             color_center={"color": f'rgb{color_rgb_w95}', "color_edge": f'rgb{color_rgb_w95}'},
-            fuzz_colors_upper=list(reversed(colors_mid_w95)), fuzz_colors_lower=colors_w95_w100,
+            fuzz_colors_upper=list(reversed(colors_mid_w95)), fuzz_colors_lower=list(reversed(colors_w95_w100)),
         )
+
+        # Up to down. So color list is up to down inside of function. To copy what it's doing I need to reverse.
+        # In another words last value is the color list is most outter part on the top. So reverse.
+        #
+        # Down to up. So color list is same direction. However to draw graph I want to see last value first as that's most outter again. So reverse again.
+        y_plot_vals_r = []
+        colors_w95_w100_r_vals = [255-rgb[0] for rgb in list(reversed(colors_w95_w100))]
+        colors_mid_w95_r_p_vals = [255-rgb[0] for rgb in list(reversed(colors_mid_w95))]
+
+        colors_w60_mid_r_vals = [255-rgb[0] for rgb in list(reversed(colors_w60_mid))]
+        colors_mid_w60_r_p_vals = [255-rgb[0] for rgb in list(reversed(colors_mid_w60))]
+
+        colors_w30_mid_top_r_vals = [255-rgb[0] for rgb in list(reversed(colors_w30_mid))]
+        colors_w30_mid_bot_r_vals = [255-rgb[0] for rgb in list((colors_w30_mid))]
+
+        print('y_plot_vals_r')
+        print(y_plot_vals_r)
+        y_plot_vals_r = y_plot_vals_r + \
+                        colors_w95_w100_r_vals + colors_mid_w95_r_p_vals + \
+                        colors_w60_mid_r_vals + colors_mid_w60_r_p_vals + \
+                        colors_w30_mid_top_r_vals + colors_w30_mid_bot_r_vals
+
+
+
+
+        # Color chart
+        print('y_plot_vals_r')
+        print(len(y_plot_vals_r))
+        print(y_plot_vals_r)
+
+        plt.bar(np.arange(len(y_plot_vals_r)), y_plot_vals_r, width=1)
+        plt.show()
+
+
 
         # # W60 p Line
         # print('reversed - colors_mid_w60 (ease out)')
         # print(list(reversed(colors_mid_w60)))
-        # print('colors_w60_mid (ease in)')
+        # print('colors_w60_mid (ease out)')
         # print(colors_w60_mid)
 
         # # W60 Line
         # print('colors_mid_w60 (ease out)')
         # print(colors_mid_w60)
-        # print('colors_w60_mid (ease in)')
+        # print('colors_w60_mid (ease out?)')
         # print(colors_w60_mid)
 
-        # # W95 Line, Bottom line
-        # print('colors_mid_w95 (ease out)')
-        # print(colors_mid_w95)
-        # print('colors_w95_w100 (ease out (both? maybe good enough))')
-        # print(colors_w95_w100)
+        # W95 Line, Bottom line
+        print('colors_mid_w95 (ease out)')
+        print(colors_mid_w95)
+        print('colors_w95_w100 (ease out (both? maybe good enough))')
+        print(colors_w95_w100)
 
         median = go.Scatter(
             x=self.generate_x_line_data(),
@@ -650,7 +753,7 @@ class FuzzyPlotly:
             marker={'size': 1, 'opacity': 0},
             line={'color': "#000000", 'width': 1,}
         )
-        # self.data.append(median)
+        self.data.append(median)
 
     def datax(self):
 
@@ -1374,3 +1477,6 @@ if __name__ == '__main__':
     # )
     # test_plot_discrete.create_data()
     # test_plot_discrete.plot()
+
+    # y_plot_vals_r = []
+

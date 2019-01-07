@@ -125,7 +125,7 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=0.8, fuzz_n=25,
+        fuzz_size=1, fuzz_n=50,
         # color=color,
         layout=layout,
     )
@@ -149,8 +149,8 @@ if __name__ == '__main__':
     # solid_ci.plot()
 
     ### Only need ci_95, color to be same only. (Make fuzz_size=1, fuzz_n=1?). Changing color inside Fuzzy class currently. Capture that logic.
-    ci_95_only.plot()
-    # fuzzy_fan.plot()
+    # ci_95_only.plot()
+    fuzzy_fan.plot()
     # full_fuzz.plot()
 
     # test_plot_fuzzy.plot()
