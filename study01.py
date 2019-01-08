@@ -118,7 +118,7 @@ if __name__ == '__main__':
         # color=color,
         layout=layout,
     )
-    # solid_ci.create_data()
+    solid_ci.create_data()
 
     fuzzy_fan = FuzzyPlotly(
         x, y_median,
