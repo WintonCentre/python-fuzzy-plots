@@ -3,7 +3,7 @@ from data_gen_sarah import create_data
 
 
 if __name__ == '__main__':
-    color = '#0000ff'
+    color = '#0000f1'
 
     x, x_label, y_median, y_p_95, y_n_95, y_p_30, y_n_30, y_p_60, y_n_60 = create_data()
 
@@ -125,8 +125,8 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=0.1, fuzz_n=50,
-        color=color,
+        fuzz_size=1, fuzz_n=50,
+        # color=color,
         layout=layout,
     )
     fuzzy_fan.create_data()
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     full_fuzz = FuzzPlotly(
         x_list=x, y_list=y_median,
         ci95p=y_p_95, ci95n=y_n_95,
-        fuzz_size=0.5, fuzz_n=100,
+        fuzz_size=1, fuzz_n=100,
         output='offline',
         # color=color,
         layout=layout,

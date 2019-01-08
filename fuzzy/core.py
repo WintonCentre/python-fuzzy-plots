@@ -2,131 +2,9 @@ import plotly.plotly as py
 import plotly.graph_objs as go
 import plotly
 from scipy.stats import norm
-from palettable.cubehelix import Cubehelix
 
 import matplotlib.pyplot as plt
-import pandas as pd
 import numpy as np
-
-# hard coded e for now
-e = 0.05
-# e = 0
-e_offset = 0 # Fixes slight mis-alignment in plotly drawing
-
-x_sample_values = ["2013-07",
-                   "2013-08",
-                   "2013-09",
-                   "2013-10",
-                   "2013-11",
-                   "2013-12",
-                   "2014-01",
-                   "2014-02",
-                   "2014-03",
-                   "2014-04",
-                   "2014-05",
-                   "2014-06",
-                   "2014-07",
-                   "2014-08",
-                   "2014-09",
-                   "2014-10",
-                   "2014-11",
-                   "2014-12",
-                   "2015-01",
-                   "2015-02",
-                   "2015-03",
-                   "2015-04",
-                   "2015-05",
-                   "2015-06",
-                   "2015-07",
-                   "2015-08",
-                   "2015-09",
-                   "2015-10",
-                   "2015-11",
-                   "2015-12",
-                   "2016-01",
-                   "2016-02",
-                   "2016-03",
-                   "2016-04",
-                   "2016-05",
-                   "2016-06",
-                   "2016-07",
-                   "2016-08",
-                   "2016-09",
-                   "2016-10",
-                   "2016-11",
-                   "2016-12",
-                   "2017-01",
-                   "2017-02",
-                   "2017-03",
-                   "2017-04",
-                   "2017-05",
-                   "2017-06",
-                   "2017-07",
-                   "2017-08",
-                   "2017-09",
-                   "2017-10",
-                   "2017-11",
-                   "2017-12",
-                   "2018-01",
-                   "2018-02",
-                   "2018-03",
-                   "2018-04",
-                   "2018-05",
-                   "2018-06",
-                   "2018-07",]
-
-
-
-y_sample_values = [8.337618963728, 8.279171746205, 8.203023291325001, 8.16982661854, 8.097634166936, 8.008366857893, 8.058186936088001, 7.885838698153, 7.858881576058001, 7.855567493386, 7.820595855792, 7.818122337445001, 7.828704432914, 7.980026665154999, 7.849850895981, 7.79839463565, 7.75388054972, 7.746002782859, 7.668407780941, 7.690985902007999, 7.612645534365, 7.3747395662390005, 7.170755621192, 7.227406558807, 7.171694338855, 6.893654974382, 6.762184038944, 6.598652448781, 6.419642868308999, 6.285297334109, 6.1413396095340005, 6.007282987197, 5.963297915327, 5.9641084307379995, 5.871371751667, 5.713943557774, 5.6704875369000005, 5.586620413797999, 5.550096812713, 5.518101872629, 5.607761950272, 5.6011292164699995, 5.514911517329001, 5.373080972737, 5.288693295291, 5.184773292915, 5.076842783398, 5.099483022613001, 5.087590042512001, 5.116303933252, 5.086588537155, 5.022712701151001, 4.934685111503001, 4.913662261302, 4.885593397848, 4.948802059784, 4.801996126307, 4.840341849932, 4.801265584408, 4.776618718601, 4.7377872479250005,]
-
-std = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
-
-layout = {
-    'showlegend': False,
-    'xaxis': {
-        'title': 'Date',
-        'titlefont': {
-            'family': 'Arial, sans-serif',
-            'size': 18,
-            'color': 'grey',
-        },
-        # 'ticktext':x_label,
-        # 'tickvals':x,
-        # 'ticktext':x_label_test,
-        # 'tickvals':x_test,
-        'showgrid':False,
-
-        'tickmode':'array',
-        'ticks': 'outside',
-        'tickangle': 45,
-        'showticklabels': True,
-        # 'ticklen': 3,
-        'tickwidth': 2,
-        'tickcolor': '#000',
-
-
-        # 'nticks': 5, #tickmode has to be auto
-
-        # 'tick0': 'hello',
-        # 'dtick': 0.5,
-
-        # 'tickformat': '%{n}f'
-        # '':,
-    },
-    'yaxis': {
-        'title': 'Unemployment (in thousands)',
-        'titlefont': {
-            'family': 'Arial, sans-serif',
-            'size': 18,
-            'color': 'grey',
-        },
-        'showgrid':False,
-        'range': [1000000/1000, 2600000/1000],
-
-    }
-}
-
-
 
 
 class FuzzyPlotly:
@@ -134,7 +12,6 @@ class FuzzyPlotly:
                  ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
                  fuzz_size, fuzz_n,
                  color='#4286f4', layout={}, figs=[], output='auto'):
-        plotly.tools.set_credentials_file(username='oneGene', api_key='JvxeS4ghBsrIRKsXYfTf')
         self.x_list = x_list
         self.y_list = y_list
         self.ci95p = ci95p
@@ -163,14 +40,6 @@ class FuzzyPlotly:
         else:
             self.output = output
 
-    # # probability is between 0-1
-    # # example p = [0.025, 0.2, 0.35, 0.5, 0.65, 0.8, 0.975]
-    # def generate_interval_point(self, p, center, std, offset=0):
-    #     point = [p+offset]
-    #     boundary_point = norm.ppf(point, loc=center, scale=std)
-    #     # print(f'point: {point}, p: {p}, center: {center}, std: {std}, offset: {offset} ==> boundary_point: {boundary_point}')
-    #     return boundary_point[0]
-
     def hex_to_rgb(self, hex_color):
         color = hex_color.lstrip('#')
         rgb_color = tuple(int(color[i:i+2], 16) for i in (0, 2 ,4))
@@ -180,52 +49,47 @@ class FuzzyPlotly:
         hex_color = "".join([format(val, '02X') for val in rgb])
         return f"#{hex_color}"
 
-    # Takes in user's input colour and calculates ci colours
-    def calc_colour(self, upper_ci, lower_ci, per):
-        h_ci = norm.ppf(upper_ci, loc=0, scale=1) - norm.ppf(lower_ci, loc=0, scale=1)
-        # print(h_ci)
-        w_ci = per / h_ci
-        # print(w_ci)
-        return w_ci
-
     def create_color_opacity(self):
-        '''
+        """
         Calculates color opacity for set confidence intervals using normal distribution to match confidence intervals
-        :return:
-        '''
-        # [0.025, 0.2, 0.35, 0.5, 0.65, 0.8, 0.975]
-        w_30 = self.calc_colour(0.65, 0.35, 0.3)
-        w_60 = self.calc_colour(0.8, 0.2, 0.3)
-        w_95 = self.calc_colour(0.975, 0.025, 0.35)
+        [0.025, 0.2, 0.35, 0.5, 0.65, 0.8, 0.975]
+        0.35, 0.65 is 30%
+        0.2, 0.8 is 30% (60%-30%)
+        0.025, 0.975 is 35% (95-30%-30%)
+        """
+        w_30 = norm.ppf(0.65, loc=0, scale=1) - norm.ppf(0.35, loc=0, scale=1)
+        w_60 = norm.ppf(0.8, loc=0, scale=1) - norm.ppf(0.2, loc=0, scale=1) - w_30
+        w_95 = norm.ppf(0.975, loc=0, scale=1) - norm.ppf(0.025, loc=0, scale=1) - w_60 - w_30
 
-        # factor used to scale to 1 (for opacity)
-        a = 1 / w_30
+        c_30 = 0.3 / w_30 - 0.05
+        c_60 = 0.3 / w_60 - 0.05
+        c_95 = 0.35 / w_95 - 0.05
 
-        # 1, 1, 2
-        w_30_final = w_30 * a / 1
-        w_60_final = w_60 * a / 1  # modified color
-        w_95_final = w_95 * a / 1  # modified color
+        # factor used to scale to 1 as maximum value for opacity
+        a = 1 / c_30
+
+        gamma = 2.5
+
+        c_30_final = (c_30 * a) ** gamma
+        c_60_final = (c_60 * a) ** gamma
+        c_95_final = (c_95 * a) ** gamma
 
         color_opacity = {
-            'w_30': w_30_final,
-            'w_60': w_60_final,
-            'w_95': w_95_final,
+            'w_30': c_30_final,
+            'w_60': c_60_final,
+            'w_95': c_95_final,
         }
+
+        print(f'w_30: {w_30} w_60: {w_60} w_95: {w_95} ')
+        print(f'c_30: {c_30} c_60: {c_60} c_95: {c_95} ')
+        print('final color_opacity')
+        print(color_opacity)
+
         # color_opacity = {
         #     'w_30': 1,
-        #     'w_60': 0.6,
+        #     'w_60': 0.42,
         #     'w_95': 0.2,
         # }
-        # print(color_opacity)
-        # print(w_30)
-        # print(w_60)
-        # print(w_95)
-        #
-        # print("")
-        #
-        # print(w_30 * a)
-        # print(w_60 * a)
-        # print(w_95 * a)
         return color_opacity
 
     def rgb_to_rgba(self, rgb, opacity):
@@ -749,241 +613,7 @@ class FuzzyPlotly:
             marker={'size': 1, 'opacity': 0},
             line={'color': "#000000", 'width': 1,}
         )
-        # self.data.append(median)
-
-    def datax(self):
-
-        fillcolor = {
-            "fill01_fuzz": "#355B92",
-            "fill01": "#204A87",
-
-            "fill02_fuzz_up": "#4C6E9F",
-            "fill02": "#6D89B1",
-            "fill02_fuzz_down": "#8FA4C3",
-
-            "fill03_fuzz": "#B1C0D5",
-            "fill03": "#D2DBE7",
-            # Same
-
-            "median": "#EF2929",
-        }
-
-        # fillcolor = {
-        #     "fill01_fuzz": "#355B92",
-        #     "fill01": "#E0ECE6",
-        #
-        #     "fill02_fuzz_up": "#C6D9CF",
-        #     "fill02": "#A8C6B6",
-        #     "fill02_fuzz_down": "#9FBFAF",
-        #
-        #     "fill03_fuzz": "#AFC9BC",
-        #     "fill03": "#A3C2B3",
-        #     # Same
-        #
-        #     "median": "#EF2929",
-        # }
-
-        # Create areas.
-
-        median = go.Scatter(
-            x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.5, -0.01, 0.01),
-            mode='lines',
-            name='median',
-            fillcolor=fillcolor["median"],
-            line={'color': fillcolor["median"], 'width': 1}
-        )
-
-        # p=[0.025, 0.2, 0.35, 0.5, 0.65, 0.8, 0.975]
-
-        area01 = go.Scatter(
-            x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.8875, 0.0875, 0.08125-e+e_offset),
-            mode='lines',
-            legendgroup='group 95%',
-            name='95%',
-            fill='tozeroy',
-            fillcolor=fillcolor["fill03"],
-            hoverinfo='none',
-            marker={'size': 1, 'opacity': 0},
-            line={'color': fillcolor["fill03"], 'width': 0.5}
-        )
-
-        e_area01_lower = go.Scatter(
-            x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.80625, e, 0+e_offset),
-            mode='lines',
-            legendgroup='group 95%',
-            # name='95% lower',
-            showlegend=False,
-            fill='tozeroy',
-            fillcolor=fillcolor["fill03_fuzz"],
-            hoverinfo='none',
-            marker={'size': 1, 'opacity': 0},
-            line={'color': fillcolor["fill03_fuzz"], 'width': 0.5}
-        )
-
-        e_area02_upper = go.Scatter(
-            x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.80625, 0, e+e_offset),
-            mode='lines',
-            legendgroup='group 60%',
-            # name='60% upper',
-            showlegend=False,
-            fill='tozeroy',
-            fillcolor=fillcolor["fill02_fuzz_down"],
-            hoverinfo='none',
-            marker={'size': 1, 'opacity': 0},
-            line={'color': fillcolor["fill02_fuzz_down"], 'width': 0.5}
-        )
-
-        area02 = go.Scatter(
-            x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.725, 0.08125-e, 0.1125-e+e_offset),
-            mode='lines',
-            legendgroup='group 60%',
-            name='60%',
-            fill='tozeroy',
-            fillcolor=fillcolor["fill02"],
-            hoverinfo='none',
-            marker={'size': 1, 'opacity': 0},
-            line={'color': fillcolor["fill02"], 'width': 1}
-        )
-
-        e_area02_lower = go.Scatter(
-            x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.6125, e, 0+e_offset),
-            mode='lines',
-            legendgroup='group 60%',
-            # name='60% lower',
-            showlegend=False,
-            fill='tozeroy',
-            fillcolor=fillcolor["fill02_fuzz_up"],
-            hoverinfo='none',
-            marker={'size': 1, 'opacity': 0},
-            line={'color': fillcolor["fill02_fuzz_up"], 'width': 1}
-        )
-
-        e_area03_upper = go.Scatter(
-            x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.6125, 0, e+e_offset),
-            mode='lines',
-            legendgroup='group 30%',
-            # name='30% upper',
-            showlegend=False,
-            fill='tozeroy',
-            fillcolor= fillcolor["fill01_fuzz"],
-            hoverinfo='none',
-            marker={'size': 1, 'opacity': 0},
-            line={'color': fillcolor["fill01_fuzz"], 'width': 1}
-        )
-
-        area03 = go.Scatter(
-            x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.5, 0.1125-e, 0.1125-e),
-            mode='lines',
-            legendgroup='group 30%',
-            name='30%',
-            fill='tozeroy',
-            fillcolor=fillcolor["fill01"],
-            hoverinfo='none',
-            marker={'size': 1, 'opacity': 0},
-            line={'color': fillcolor["fill01"], 'width': 0.5}
-        )
-
-        e_area03_lower = go.Scatter(
-            x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.3875, e+e_offset, 0),
-            mode='lines',
-            legendgroup='group 30%',
-            # name='30% lower',
-            showlegend=False,
-            fill='tozeroy',
-            fillcolor=fillcolor["fill01_fuzz"],
-            hoverinfo='none',
-            marker={'size': 1, 'opacity': 0},
-            line={'color': fillcolor["fill01_fuzz"], 'width': 1}
-        )
-
-        e_area04_upper = go.Scatter(
-            x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.3875, 0+e_offset, e),
-            mode='lines',
-            legendgroup='group 60%',
-            # name='60% upper',
-            showlegend=False,
-            fill='tozeroy',
-            fillcolor=fillcolor["fill02_fuzz_up"],
-            hoverinfo='none',
-            marker={'size': 1, 'opacity': 0},
-            line={'color': fillcolor["fill02_fuzz_up"], 'width': 1}
-        )
-
-        area04 = go.Scatter(
-            x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.275, 0.1125-e+e_offset, 0.08125-e),
-            mode='lines',
-            legendgroup='group 60%',
-            name='60%',
-            showlegend=False,
-            fill='tozeroy',
-            fillcolor=fillcolor["fill02"],
-            hoverinfo='none',
-            marker={'size': 1, 'opacity': 0},
-            line={'color': fillcolor["fill02"], 'width': 1}
-        )
-
-        e_area04_lower = go.Scatter(
-            x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.19375, e+e_offset, 0),
-            mode='lines',
-            legendgroup='group 60%',
-            name='60% lower',
-            showlegend=False,
-            fill='tozeroy',
-            fillcolor=fillcolor["fill02_fuzz_down"],
-            hoverinfo='none',
-            marker={'size': 1, 'opacity': 0},
-            line={'color': fillcolor["fill02_fuzz_down"], 'width': 1}
-        )
-
-        e_area05_upper = go.Scatter(
-            x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.19375, 0+e_offset, e),
-            mode='lines',
-            legendgroup='group 95%',
-            name='95% upper',
-            showlegend=False,
-            fill='tozeroy',
-            fillcolor=fillcolor["fill03_fuzz"],
-            hoverinfo='none',
-            marker={'size': 1, 'opacity': 0},
-            line={'color': fillcolor["fill03_fuzz"], 'width': 1}
-        )
-
-        area05 = go.Scatter(
-            x=self.generate_x_line_data(),
-            y=self.generate_y_line_data(0.1125, 0.08125-e+e_offset, 0.0875),
-            mode='lines',
-            legendgroup='group 95%',
-            name='95%',
-            showlegend=False,
-            fill='tozeroy',
-            fillcolor=fillcolor["fill03"],
-            hoverinfo='none',
-            marker={'size': 1, 'opacity': 0},
-            line={'color': fillcolor["fill03"], 'width': 1}
-        )
-
-        data = [
-                            area01, e_area01_lower,
-            e_area02_upper, area02, e_area02_lower,
-            e_area03_upper, area03, e_area03_lower,
-            e_area04_upper, area04, e_area04_lower,
-            e_area05_upper, area05, median,
-        ] + self.figs
-
-        return data
+        self.data.append(median)
 
     def plot(self):
         fig = go.Figure(data=self.data, layout=self.layout)
@@ -1003,7 +633,6 @@ class FuzzPlotly:
     def __init__(self, x_list, y_list, ci95p, ci95n,
                  fuzz_size, fuzz_n,
                  color='#4286f4', layout={}, figs=[], output='auto'):
-        plotly.tools.set_credentials_file(username='oneGene', api_key='JvxeS4ghBsrIRKsXYfTf')
         self.x_list = x_list
         self.y_list = y_list
         self.ci95p = ci95p
