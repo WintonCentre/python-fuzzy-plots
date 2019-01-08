@@ -8,11 +8,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-
-y_plot_vals_r = []
-y_plot_vals_g = []
-y_plot_vals_b = []
-
 # hard coded e for now
 e = 0.05
 # e = 0
@@ -219,7 +214,7 @@ class FuzzyPlotly:
         # color_opacity = {
         #     'w_30': 1,
         #     'w_60': 0.6,
-        #     'w_95': 0.1,
+        #     'w_95': 0.2,
         # }
         # print(color_opacity)
         # print(w_30)
@@ -708,7 +703,8 @@ class FuzzyPlotly:
         y_plot_vals_r = y_plot_vals_r + \
                         colors_w95_w100_r_vals + colors_mid_w95_r_p_vals + \
                         colors_w60_mid_r_vals + colors_mid_w60_r_p_vals + \
-                        colors_w30_mid_top_r_vals + colors_w30_mid_bot_r_vals
+                        colors_w30_mid_top_r_vals + colors_w30_mid_bot_r_vals + \
+                        list(reversed(colors_mid_w60_r_p_vals)) + list(reversed(colors_w60_mid_r_vals)) + list(reversed(colors_mid_w95_r_p_vals)) + list(reversed(colors_w95_w100_r_vals))
 
 
 
@@ -753,7 +749,7 @@ class FuzzyPlotly:
             marker={'size': 1, 'opacity': 0},
             line={'color': "#000000", 'width': 1,}
         )
-        self.data.append(median)
+        # self.data.append(median)
 
     def datax(self):
 
