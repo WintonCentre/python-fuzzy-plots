@@ -1,4 +1,4 @@
-from fuzzy.core import FuzzyPlotly, FuzzPlotly, BasePlotly
+from fuzzy.core import FuzzyPlotly, FuzzPlotly, BasePlotly, OuterBandPlotly
 from data_gen_sarah import create_data
 
 
@@ -92,8 +92,8 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_95, ci60n=y_n_95,
         ci30p=y_p_95, ci30n=y_n_95,
-        fuzz_size=0, fuzz_n=1,
-        color=color,
+        fuzz_size=0.01, fuzz_n=1,
+        color='#dae6fa',
         layout=layout,
     )
     # ci_95_only.create_data()
@@ -125,7 +125,7 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=1, fuzz_n=50,
+        fuzz_size=0.95, fuzz_n=100,
         # color=color,
         layout=layout,
         output='offline',
@@ -136,7 +136,7 @@ if __name__ == '__main__':
     full_fuzz = FuzzPlotly(
         x_list=x, y_list=y_median,
         ci95p=y_p_95, ci95n=y_n_95,
-        fuzz_size=1, fuzz_n=100,
+        fuzz_size=0.9, fuzz_n=100,
         output='offline',
         # color=color,
         layout=layout,
@@ -151,8 +151,8 @@ if __name__ == '__main__':
 
     ### Only need ci_95, color to be same only. (Make fuzz_size=1, fuzz_n=1?). Changing color inside Fuzzy class currently. Capture that logic.
     # ci_95_only.plot()
-    # fuzzy_fan.plot()
-    full_fuzz.plot()
+    fuzzy_fan.plot()
+    # full_fuzz.plot()
 
     # test_plot_fuzzy.plot()
     # test_plot.plot()
@@ -165,3 +165,16 @@ if __name__ == '__main__':
     # print(y_p_95)
     # print('y_n_95')
     # print(y_n_95)
+
+
+    outterband_plot = OuterBandPlotly(
+        x, y_median,
+        ci95p=y_p_95, ci95n=y_n_95,
+        fuzz_size=1, fuzz_n=1,
+        color='#0000ff',
+        median=True,
+        median_color='red',
+        # color='#dae6fa',
+        layout=layout,
+    )
+    # outterband_plot.plot()

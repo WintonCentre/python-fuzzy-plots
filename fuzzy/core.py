@@ -6,8 +6,8 @@ from scipy.stats import norm
 
 class BasePlotly:
     def __init__(self, x_list, y_list, ci95p, ci95n,
-                 fuzz_size, fuzz_n,
-                 color='#4286f4', layout={}, figs=[], output="auto"):
+                 fuzz_size, fuzz_n, color='#4286f4',
+                 median=True, median_color='#000000' ,layout={}, figs=[], output="auto"):
         self.x_list = x_list
         self.y_list = y_list
         self.ci95p = ci95p
@@ -17,8 +17,9 @@ class BasePlotly:
         self.layout = layout
         self.figs = figs
         self.color = color
+        self.median = median
+        self.median_color = median_color
         self.data = []
-        # print(f'output base is: {output}')
 
         # Automatically figures out if it's running in ipython. If not
         # Add default value of offline
@@ -134,20 +135,18 @@ class BasePlotly:
             # legendgroup='group 95%',
             name='drawing shape',
             fill='tozeroy',
-            fillcolor="#000000",
+            fillcolor=self.median_color,
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
-            line={'color': "#000000", 'width': 1,},
+            line={'color': self.median_color, 'width': 1,},
         )
         self.data.append(median)
 
-    def plot(self, median_plot=True):
+    def plot(self):
         """
-        :param median_plot: True or False. Doesn't plots median line if false.
-        :return:
         """
         self.create_data()
-        if median_plot:
+        if self.median:
             self.create_median()
         self.plotly_plot()
 
@@ -156,10 +155,9 @@ class FuzzyPlotly(BasePlotly):
     def __init__(self, x_list, y_list,
                  ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
                  fuzz_size, fuzz_n,
-                 color='#4286f4', layout={}, figs=[]
+                 color='#4286f4', median=True, median_color='#000000', layout={}, figs=[]
                  , output='auto'
                  ):
-        print(f'output fuzzy is: {output}')
         super(FuzzyPlotly, self).__init__(x_list, y_list,
                                           ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
                                           fuzz_size, fuzz_n,
@@ -178,6 +176,8 @@ class FuzzyPlotly(BasePlotly):
         self.layout = layout
         self.figs = figs
         self.color = color
+        self.median = median
+        self.median_color = median_color
         self.data = []
 
         print(f'output fuzzy is: {output}')
@@ -466,7 +466,7 @@ class FuzzyPlotly(BasePlotly):
 class FuzzPlotly(BasePlotly):
     def __init__(self, x_list, y_list, ci95p, ci95n,
                  fuzz_size, fuzz_n,
-                 color='#4286f4', layout={}, figs=[], output='auto'):
+                 color='#4286f4', median=True, median_color='#000000', layout={}, figs=[], output='auto'):
         super(FuzzPlotly, self).__init__(x_list, y_list,
                                           ci95p, ci95n,
                                           fuzz_size, fuzz_n,
@@ -481,9 +481,10 @@ class FuzzPlotly(BasePlotly):
         self.layout = layout
         self.figs = figs
         self.color = color
+        self.median = median
+        self.median_color = median_color
         self.data = []
 
-        print(f'output fuzz is: {output}')
         if output == 'auto':
             try:
                 get_ipython()
@@ -567,4 +568,33 @@ class FuzzPlotly(BasePlotly):
         self.create_fuzzy_shape(
             upper=self.ci95p, lower=self.ci95n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
             fuzz_colors=colors_center_rgb_w95,
+        )
+
+
+class OuterBandPlotly(BasePlotly):
+    def __init__(self, *args, **kwargs):
+        super(OuterBandPlotly, self).__init__(*args, **kwargs)
+        self.fuzz_size = 1
+        self.fuzz_n = 1
+
+    # Finds fuzz for confidence interval with fuzz size and fuzz n.
+    def create_fuzzy_shape(self, upper, lower, fuzz_size, fuzz_n):
+        areas_upper = self.calc_fuzz_area(upper, lower, fuzz_size=fuzz_size)
+        area_per_fuzz = [area/fuzz_n for area in areas_upper]
+
+        for i in range(1, fuzz_n+1):
+            # Upper fuzz
+            cur_up_upper = [upper - (area*(i-1)) for (upper, area) in zip(upper, area_per_fuzz)]
+            cur_up_lower = [upper - (area*(i)) for (upper, area) in zip(upper, area_per_fuzz)]
+            self.generate_shape(cur_up_upper, cur_up_lower, {"color": self.color, "color_edge": self.color})
+
+            # Lower fuzz - Building from bottom to top
+            cur_down_upper = [upper + (area*(i)) for (upper, area) in zip(lower, area_per_fuzz)]
+            cur_down_lower = [upper + (area*(i-1)) for (upper, area) in zip(lower, area_per_fuzz)]
+            self.generate_shape(cur_down_upper, cur_down_lower, {"color": self.color, "color_edge": self.color})
+
+    def create_data(self):
+
+        self.create_fuzzy_shape(
+            upper=self.ci95p, lower=self.ci95n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
         )
