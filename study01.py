@@ -1,4 +1,4 @@
-from fuzzy.core import FuzzyPlotly, FuzzPlotly
+from fuzzy.core import FuzzyPlotly, FuzzPlotly, BasePlotly
 from data_gen_sarah import create_data
 
 
@@ -118,7 +118,7 @@ if __name__ == '__main__':
         # color=color,
         layout=layout,
     )
-    solid_ci.create_data()
+    # solid_ci.create_data()
 
     fuzzy_fan = FuzzyPlotly(
         x, y_median,
@@ -128,8 +128,9 @@ if __name__ == '__main__':
         fuzz_size=1, fuzz_n=50,
         # color=color,
         layout=layout,
+        output='offline',
     )
-    fuzzy_fan.create_data()
+    # fuzzy_fan.create_data()
 
     # Full fuzz
     full_fuzz = FuzzPlotly(
@@ -150,8 +151,8 @@ if __name__ == '__main__':
 
     ### Only need ci_95, color to be same only. (Make fuzz_size=1, fuzz_n=1?). Changing color inside Fuzzy class currently. Capture that logic.
     # ci_95_only.plot()
-    fuzzy_fan.plot()
-    # full_fuzz.plot()
+    # fuzzy_fan.plot()
+    full_fuzz.plot()
 
     # test_plot_fuzzy.plot()
     # test_plot.plot()
