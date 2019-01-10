@@ -1,4 +1,4 @@
-from fuzzy.core import FuzzyPlotly, FuzzPlotly, OuterBandPlotly, FanPlotly
+from fuzzy.core import FuzzyPlotly, DensPlotly, StandardErrorPlot, FanPlotly
 from data_gen_sarah import create_data
 
 
@@ -107,7 +107,8 @@ if __name__ == '__main__':
         layout=layout,
     )
 
-    ci_95_only = OuterBandPlotly(
+    #StandardErrorPlot StandardErrorPlot
+    ci_95_only = StandardErrorPlot(
         x, y_median,
         ci95p=y_p_95, ci95n=y_n_95,
         fuzz_size=1, fuzz_n=1,
@@ -117,6 +118,7 @@ if __name__ == '__main__':
         layout=layout,
     )
 
+    # Fuzzy Fan
     fuzzy_fan = FuzzyPlotly(
         x, y_median,
         ci95p=y_p_95, ci95n=y_n_95,
@@ -129,8 +131,9 @@ if __name__ == '__main__':
         layout=layout,
     )
 
+    # DensPlotly. plotting pdf.
     # Full fuzz
-    full_fuzz = FuzzPlotly(
+    full_fuzz = DensPlotly(
         x_list=x, y_list=y_median,
         ci95p=y_p_95, ci95n=y_n_95,
         fuzz_size=1, fuzz_n=100,
@@ -142,19 +145,23 @@ if __name__ == '__main__':
     )
 
     # median_only.plot()
-    # solid_ci.plot()
+    solid_ci.plot()
     # ci_95_only.plot()
     # full_fuzz.plot()
     # fuzzy_fan.plot()
 
-    fan_test = FanPlotly(
-        x, y_median,
-        ci95p=y_p_95, ci95n=y_n_95,
-        ci60p=y_p_60, ci60n=y_n_60,
-        ci30p=y_p_30, ci30n=y_n_30,
-        # color=color,
-        # median_color=median_color,
-        # median_width=median_width,
-        # layout=layout,
-    )
-    fan_test.plot()
+    # fan_test = FanPlotly(
+    #     x, y_median,
+    #     ci95p=y_p_95, ci95n=y_n_95,
+    #     ci60p=y_p_60, ci60n=y_n_60,
+    #     ci30p=y_p_30, ci30n=y_n_30,
+    #     color=color,
+    #     median_line_color=median_color,
+    #     median_line_width=median_width,
+    #     # layout=layout,
+    # )
+    #
+    # print(y_p_95)
+    # # fan_test.plot()
+    #
+    # # print(fan_test.data)

@@ -1,4 +1,4 @@
-from fuzzy.core import FuzzyPlotly, FuzzPlotly, BasePlotly, OuterBandPlotly
+from fuzzy.core import FuzzyPlotly, DensPlotly, BasePlotly, StandardErrorPlot
 from data_gen_sarah import create_data
 
 
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     # fuzzy_fan.create_data()
 
     # Full fuzz
-    full_fuzz = FuzzPlotly(
+    full_fuzz = DensPlotly(
         x_list=x, y_list=y_median,
         ci95p=y_p_95, ci95n=y_n_95,
         fuzz_size=0.9, fuzz_n=100,
@@ -167,7 +167,7 @@ if __name__ == '__main__':
     # print(y_n_95)
 
 
-    outterband_plot = OuterBandPlotly(
+    outterband_plot = StandardErrorPlot(
         x, y_median,
         ci95p=y_p_95, ci95n=y_n_95,
         fuzz_size=1, fuzz_n=1,

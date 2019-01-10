@@ -466,14 +466,13 @@ class FuzzyPlotly(BasePlotly):
 
 
 # For full fuzz
-class FuzzPlotly(BasePlotly):
+class DensPlotly(BasePlotly):
     def __init__(self, x_list, y_list, ci95p, ci95n,
                  fuzz_size, fuzz_n,
                  color='#4286f4', median=True, median_color='#000000', median_width=1, layout={'showlegend': False}, figs=[], output='auto'):
-        super(FuzzPlotly, self).__init__(x_list, y_list,
+        super(DensPlotly, self).__init__(x_list, y_list,
                                           ci95p, ci95n,
                                           fuzz_size, fuzz_n,
-                                          # layout, figs,
                                           )
         self.x_list = x_list
         self.y_list = y_list
@@ -575,9 +574,9 @@ class FuzzPlotly(BasePlotly):
         )
 
 
-class OuterBandPlotly(BasePlotly):
+class StandardErrorPlot(BasePlotly):
     def __init__(self, *args, **kwargs):
-        super(OuterBandPlotly, self).__init__(*args, **kwargs)
+        super(StandardErrorPlot, self).__init__(*args, **kwargs)
         self.fuzz_size = 1
         self.fuzz_n = 1
 
