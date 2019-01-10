@@ -1,11 +1,9 @@
-from fuzzy.core import FuzzyPlotly, FuzzPlotly, OuterBandPlotly, FanPlotly
+from fuzzy.core import FuzzyPlotly, FuzzPlotly, BasePlotly, OuterBandPlotly
 from data_gen_sarah import create_data
 
 
 if __name__ == '__main__':
-    color = '#4286f4'
-    median_color = '#004C99'
-    median_width = 2
+    color = '#0000f1'
 
     x, x_label, y_median, y_p_95, y_n_95, y_p_30, y_n_30, y_p_60, y_n_60 = create_data()
 
@@ -18,11 +16,9 @@ if __name__ == '__main__':
     # for ticks, change step size. so it only plots ticks on those parts.
     x_test = x[0::2]
     x_label_test = x_label[0::2]
-    # x_label_test[2] = 'aaaaa <br> a'
-    x_label_test = [x_label.replace('-', '<br>20') for x_label in x_label_test]
 
-    print(x_test)
-    print(x_label_test)
+    # print(x_test)
+    # print(x_label_test)
 
     layout = {
         'showlegend': False,
@@ -31,24 +27,22 @@ if __name__ == '__main__':
             'titlefont': {
                 'family': 'Arial, sans-serif',
                 'size': 18,
-                'color': 'black',
+                'color': 'grey',
             },
             # 'ticktext':x_label,
             # 'tickvals':x,
             'ticktext':x_label_test,
             'tickvals':x_test,
             'showgrid':False,
-            'showline': True,
 
             'tickmode':'array',
             'ticks': 'outside',
-            'tickangle': 0,
+            'tickangle': 45,
             'showticklabels': True,
             # 'ticklen': 3,
             'tickwidth': 2,
             'tickcolor': '#000',
 
-            'mirror': True,
 
             # 'nticks': 5, #tickmode has to be auto
 
@@ -63,25 +57,46 @@ if __name__ == '__main__':
             'titlefont': {
                 'family': 'Arial, sans-serif',
                 'size': 18,
-                'color': 'black',
+                'color': 'grey',
             },
             'showgrid':False,
             'range': [1000000/1000, 2600000/1000],
-            'showline': True,
-            'tickmode': 'array',
-            'ticks': 'outside',
-            'mirror': True,
-            'tickwidth': 2,
 
-        },
-        'margin': {
-            # 'l':50,
-            # 'r':50,
-            # 'b':100,
-            # 't':100,
-            'pad':14,
         }
     }
+
+    test_plot = FuzzyPlotly(
+        x, y_median,
+        ci95p=y_p_95, ci95n=y_n_95,
+        ci60p=y_p_95, ci60n=y_n_95,
+        ci30p=y_p_95, ci30n=y_n_95,
+        fuzz_size=1, fuzz_n=30,
+        # color=color,
+        layout=layout,
+    )
+    # test_plot.create_data()
+
+    test_plot_fuzzy = FuzzyPlotly(
+        x, y_median,
+        ci95p=y_p_95, ci95n=y_n_95,
+        ci60p=y_p_60, ci60n=y_n_60,
+        ci30p=y_p_30, ci30n=y_n_30,
+        fuzz_size=0.4, fuzz_n=10,
+        # color=color,
+        layout=layout,
+    )
+    # test_plot_fuzzy.create_data()
+
+    ci_95_only = FuzzyPlotly(
+        x, y_median,
+        ci95p=y_p_95, ci95n=y_n_95,
+        ci60p=y_p_95, ci60n=y_n_95,
+        ci30p=y_p_95, ci30n=y_n_95,
+        fuzz_size=0.01, fuzz_n=1,
+        color='#dae6fa',
+        layout=layout,
+    )
+    # ci_95_only.create_data()
 
     median_only = FuzzyPlotly(
         x, y_median,
@@ -89,11 +104,10 @@ if __name__ == '__main__':
         ci60p=y_median, ci60n=y_median,
         ci30p=y_median, ci30n=y_median,
         fuzz_size=0.01, fuzz_n=1,
-        color=median_color,
-        median_color=median_color,
-        median_width=median_width,
+        # color=color,
         layout=layout,
     )
+    # median_only.create_data()
 
     solid_ci = FuzzyPlotly(
         x, y_median,
@@ -101,60 +115,66 @@ if __name__ == '__main__':
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
         fuzz_size=0, fuzz_n=1,
-        color=color,
-        median_color=median_color,
-        median_width=median_width,
+        # color=color,
         layout=layout,
     )
-
-    ci_95_only = OuterBandPlotly(
-        x, y_median,
-        ci95p=y_p_95, ci95n=y_n_95,
-        fuzz_size=1, fuzz_n=1,
-        color='#e9f1fe',
-        median_color=median_color,
-        median_width=median_width,
-        layout=layout,
-    )
+    # solid_ci.create_data()
 
     fuzzy_fan = FuzzyPlotly(
         x, y_median,
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=1, fuzz_n=100,
-        color=color,
-        median_color=median_color,
-        median_width=median_width,
+        fuzz_size=0.95, fuzz_n=100,
+        # color=color,
         layout=layout,
+        output='offline',
     )
+    # fuzzy_fan.create_data()
 
     # Full fuzz
     full_fuzz = FuzzPlotly(
         x_list=x, y_list=y_median,
         ci95p=y_p_95, ci95n=y_n_95,
-        fuzz_size=1, fuzz_n=100,
+        fuzz_size=0.9, fuzz_n=100,
         output='offline',
-        color=color,
-        median_color=median_color,
-        median_width=median_width,
+        # color=color,
         layout=layout,
     )
+    # full_fuzz.create_data()
 
+    ### This is done by all lines being at center only. Pull this logic out and improve for publishing.
     # median_only.plot()
-    # solid_ci.plot()
-    # ci_95_only.plot()
-    # full_fuzz.plot()
-    # fuzzy_fan.plot()
 
-    fan_test = FanPlotly(
+    ### Done by fuzz_size being so small and fuzz_n being 1 so no divisions. (or maybe 2 but fuzz is soooooo small eye can't see without impossible zooming)
+    # solid_ci.plot()
+
+    ### Only need ci_95, color to be same only. (Make fuzz_size=1, fuzz_n=1?). Changing color inside Fuzzy class currently. Capture that logic.
+    # ci_95_only.plot()
+    fuzzy_fan.plot()
+    # full_fuzz.plot()
+
+    # test_plot_fuzzy.plot()
+    # test_plot.plot()
+
+    # print('x')
+    # print(x)
+    # print('y_median')
+    # print(y_median)
+    # print('y_p_95')
+    # print(y_p_95)
+    # print('y_n_95')
+    # print(y_n_95)
+
+
+    outterband_plot = OuterBandPlotly(
         x, y_median,
         ci95p=y_p_95, ci95n=y_n_95,
-        ci60p=y_p_60, ci60n=y_n_60,
-        ci30p=y_p_30, ci30n=y_n_30,
-        color=color,
-        median_color=median_color,
-        median_width=median_width,
+        fuzz_size=1, fuzz_n=1,
+        color='#0000ff',
+        median=True,
+        median_color='red',
+        # color='#dae6fa',
         layout=layout,
     )
-    fan_test.plot()
+    # outterband_plot.plot()

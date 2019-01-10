@@ -7,7 +7,8 @@ from scipy.stats import norm
 class BasePlotly:
     def __init__(self, x_list, y_list, ci95p, ci95n,
                  fuzz_size, fuzz_n, color='#4286f4',
-                 median=True, median_color='#000000' ,layout={}, figs=[], output="auto"):
+                 median=True, median_color='#000000', median_width=1,
+                 layout={}, figs=[], output="auto"):
         self.x_list = x_list
         self.y_list = y_list
         self.ci95p = ci95p
@@ -19,6 +20,7 @@ class BasePlotly:
         self.color = color
         self.median = median
         self.median_color = median_color
+        self.median_width = median_width
         self.data = []
 
         # Automatically figures out if it's running in ipython. If not
@@ -138,7 +140,7 @@ class BasePlotly:
             fillcolor=self.median_color,
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
-            line={'color': self.median_color, 'width': 1,},
+            line={'color': self.median_color, 'width': self.median_width,},
         )
         self.data.append(median)
 
@@ -155,8 +157,8 @@ class FuzzyPlotly(BasePlotly):
     def __init__(self, x_list, y_list,
                  ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
                  fuzz_size, fuzz_n,
-                 color='#4286f4', median=True, median_color='#000000', layout={}, figs=[]
-                 , output='auto'
+                 color='#4286f4', median=True, median_color='#000000', median_width=1,
+                 layout={}, figs=[], output='auto'
                  ):
         super(FuzzyPlotly, self).__init__(x_list, y_list,
                                           ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
@@ -178,9 +180,9 @@ class FuzzyPlotly(BasePlotly):
         self.color = color
         self.median = median
         self.median_color = median_color
+        self.median_width = median_width
         self.data = []
 
-        print(f'output fuzzy is: {output}')
         if output == 'auto':
             try:
                 get_ipython()
@@ -466,7 +468,7 @@ class FuzzyPlotly(BasePlotly):
 class FuzzPlotly(BasePlotly):
     def __init__(self, x_list, y_list, ci95p, ci95n,
                  fuzz_size, fuzz_n,
-                 color='#4286f4', median=True, median_color='#000000', layout={}, figs=[], output='auto'):
+                 color='#4286f4', median=True, median_color='#000000', median_width=1, layout={}, figs=[], output='auto'):
         super(FuzzPlotly, self).__init__(x_list, y_list,
                                           ci95p, ci95n,
                                           fuzz_size, fuzz_n,
@@ -483,6 +485,7 @@ class FuzzPlotly(BasePlotly):
         self.color = color
         self.median = median
         self.median_color = median_color
+        self.median_width = median_width
         self.data = []
 
         if output == 'auto':
@@ -598,3 +601,10 @@ class OuterBandPlotly(BasePlotly):
         self.create_fuzzy_shape(
             upper=self.ci95p, lower=self.ci95n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
         )
+
+
+class FanPlotly(FuzzyPlotly):
+    def __init__(self, *args, **kwargs):
+        kwargs['fuzz_size'] = 0
+        kwargs['fuzz_n'] = 1
+        super(FanPlotly, self).__init__(*args, **kwargs)
