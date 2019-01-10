@@ -7,7 +7,7 @@ from scipy.stats import norm
 class BasePlotly:
     def __init__(self, x_list, y_list, ci95p, ci95n,
                  fuzz_size, fuzz_n, color='#4286f4',
-                 median=True, median_color='#000000', median_width=1,
+                 median_line=True, median_line_color='#000000', median_line_width=1,
                  layout={'showlegend': False}, figs=[], output="auto"):
         self.x_list = x_list
         self.y_list = y_list
@@ -18,9 +18,9 @@ class BasePlotly:
         self.layout = layout
         self.figs = figs
         self.color = color
-        self.median = median
-        self.median_color = median_color
-        self.median_width = median_width
+        self.median_line = median_line
+        self.median_line_color = median_line_color
+        self.median_line_width = median_line_width
         self.data = []
 
         # Automatically figures out if it's running in ipython. If not
@@ -123,6 +123,7 @@ class BasePlotly:
             # Online plotly server version. Doesn't seem to be able to turn displayModeBar off.
             py.plot(fig, config={'displayModeBar': False})
         if self.output == 'jupyter':
+            from plotly.offline import init_notebook_mode, plot, iplot
             init_notebook_mode(connected=True)
             iplot(fig, config={'displayModeBar': False})
 
@@ -137,10 +138,10 @@ class BasePlotly:
             # legendgroup='group 95%',
             name='drawing shape',
             fill='tozeroy',
-            fillcolor=self.median_color,
+            fillcolor=self.median_line_color,
             hoverinfo='none',
             marker={'size': 1, 'opacity': 0},
-            line={'color': self.median_color, 'width': self.median_width,},
+            line={'color': self.median_line_color, 'width': self.median_line_width,},
         )
         self.data.append(median)
 
@@ -149,7 +150,7 @@ class BasePlotly:
         Runs all internal logic to create and plot chart.
         """
         self.create_data()
-        if self.median:
+        if self.median_line:
             self.create_median()
         self.plotly_plot()
 
@@ -158,7 +159,7 @@ class FuzzyPlotly(BasePlotly):
     def __init__(self, x_list, y_list,
                  ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
                  fuzz_size, fuzz_n,
-                 color='#4286f4', median=True, median_color='#000000', median_width=1,
+                 color='#4286f4', median_line=True, median_line_color='#000000', median_line_width=1,
                  layout={'showlegend': False}, figs=[], output='auto'
                  ):
         super(FuzzyPlotly, self).__init__(x_list, y_list,
@@ -179,9 +180,9 @@ class FuzzyPlotly(BasePlotly):
         self.layout = layout
         self.figs = figs
         self.color = color
-        self.median = median
-        self.median_color = median_color
-        self.median_width = median_width
+        self.median_line = median_line
+        self.median_line_color = median_line_color
+        self.median_line_width = median_line_width
         self.data = []
 
         if output == 'auto':
@@ -472,9 +473,10 @@ class FuzzyPlotly(BasePlotly):
 # For full fuzz
 class DensPlotly(BasePlotly):
     def __init__(self, x_list, y_list, ci95p, ci95n,
-                 fuzz_size, fuzz_n, color='#4286f4',
-                 median=True, median_color='#000000', median_width=1,
+                 fuzz_n, color='#4286f4',
+                 median_line=True, median_line_color='#000000', median_line_width=1,
                  layout={'showlegend': False}, figs=[], output='auto'):
+        fuzz_size = 1
         super(DensPlotly, self).__init__(x_list, y_list, ci95p, ci95n, fuzz_size, fuzz_n)
         self.x_list = x_list
         self.y_list = y_list
@@ -485,9 +487,9 @@ class DensPlotly(BasePlotly):
         self.layout = layout
         self.figs = figs
         self.color = color
-        self.median = median
-        self.median_color = median_color
-        self.median_width = median_width
+        self.median_line = median_line
+        self.median_line_color = median_line_color
+        self.median_line_width = median_line_width
         self.data = []
 
         if output == 'auto':
@@ -580,9 +582,9 @@ class DensPlotly(BasePlotly):
 
 class StandardErrorPlot(BasePlotly):
     def __init__(self, *args, **kwargs):
+        kwargs['fuzz_size'] = 1
+        kwargs['fuzz_n'] = 1
         super(StandardErrorPlot, self).__init__(*args, **kwargs)
-        self.fuzz_size = 1
-        self.fuzz_n = 1
 
     # Finds fuzz for confidence interval with fuzz size and fuzz n.
     def create_fuzzy_shape(self, upper, lower, fuzz_size, fuzz_n):
