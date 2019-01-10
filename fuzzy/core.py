@@ -8,7 +8,7 @@ class BasePlotly:
     def __init__(self, x_list, y_list, ci95p, ci95n,
                  fuzz_size, fuzz_n, color='#4286f4',
                  median=True, median_color='#000000', median_width=1,
-                 layout={}, figs=[], output="auto"):
+                 layout={'showlegend': False}, figs=[], output="auto"):
         self.x_list = x_list
         self.y_list = y_list
         self.ci95p = ci95p
@@ -146,6 +146,7 @@ class BasePlotly:
 
     def plot(self):
         """
+        Runs all internal logic to create and plot chart.
         """
         self.create_data()
         if self.median:
@@ -158,7 +159,7 @@ class FuzzyPlotly(BasePlotly):
                  ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
                  fuzz_size, fuzz_n,
                  color='#4286f4', median=True, median_color='#000000', median_width=1,
-                 layout={}, figs=[], output='auto'
+                 layout={'showlegend': False}, figs=[], output='auto'
                  ):
         super(FuzzyPlotly, self).__init__(x_list, y_list,
                                           ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
@@ -468,7 +469,7 @@ class FuzzyPlotly(BasePlotly):
 class FuzzPlotly(BasePlotly):
     def __init__(self, x_list, y_list, ci95p, ci95n,
                  fuzz_size, fuzz_n,
-                 color='#4286f4', median=True, median_color='#000000', median_width=1, layout={}, figs=[], output='auto'):
+                 color='#4286f4', median=True, median_color='#000000', median_width=1, layout={'showlegend': False}, figs=[], output='auto'):
         super(FuzzPlotly, self).__init__(x_list, y_list,
                                           ci95p, ci95n,
                                           fuzz_size, fuzz_n,

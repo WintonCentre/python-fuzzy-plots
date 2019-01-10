@@ -152,9 +152,9 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        color=color,
-        median_color=median_color,
-        median_width=median_width,
-        layout=layout,
+        # color=color,
+        # median_color=median_color,
+        # median_width=median_width,
+        # layout=layout,
     )
     fan_test.plot()
