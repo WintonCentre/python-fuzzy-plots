@@ -234,6 +234,8 @@ class FuzzyPlotly(BasePlotly):
         """
         Calculated fuzz colors and return
         Optional easing function to smooth out and reduce colour banding issue.
+        :param color_a: Starting colour.
+        :param color_b: Ending colour.
         :param fuzz_n: Number of divisions (fuzz) to have.
         :param ease: ease-in, ease-out, ease-linear.
         :return: list of colors in RGB tuple
@@ -262,7 +264,6 @@ class FuzzyPlotly(BasePlotly):
             new = t/d
             t_at_pos = c*(t/d)*new+b
             return int(round(t_at_pos))
-            # return int(111)
 
         def ease_out_quad(t, b, c, d):
             new = (t/d)
@@ -327,11 +328,13 @@ class FuzzyPlotly(BasePlotly):
             # Building from top to bottom. Color is reversed. Going from last to first
             cur_up_upper = [upper - (area*(i-1)) for (upper, area) in zip(upper, area_per_fuzz)]
             cur_up_lower = [upper - (area*(i)) for (upper, area) in zip(upper, area_per_fuzz)]
-            self.generate_shape(cur_up_upper, cur_up_lower, {"color": f'rgb{fuzz_colors_upper[fuzz_n-i]}', "color_edge": f'rgb{fuzz_colors_upper[fuzz_n-i]}'})
+            self.generate_shape(cur_up_upper, cur_up_lower, {"color": f'rgb{fuzz_colors_upper[fuzz_n-i]}',
+                                                             "color_edge": f'rgb{fuzz_colors_upper[fuzz_n-i]}'})
             # Lower fuzz - Building from bottom to top
             cur_down_upper = [upper + (area*(i)) for (upper, area) in zip(lower, area_per_fuzz)]
             cur_down_lower = [upper + (area*(i-1)) for (upper, area) in zip(lower, area_per_fuzz)]
-            self.generate_shape(cur_down_upper, cur_down_lower, {"color": f'rgb{fuzz_colors_lower[i-1]}', "color_edge": f'rgb{fuzz_colors_lower[i-1]}'})
+            self.generate_shape(cur_down_upper, cur_down_lower, {"color": f'rgb{fuzz_colors_lower[i-1]}',
+                                                                 "color_edge": f'rgb{fuzz_colors_lower[i-1]}'})
 
         # Central Main shape
         fuzz_main_up_lower = [upper - area for (upper, area) in zip(upper, areas_upper)]
@@ -459,7 +462,8 @@ class FuzzyPlotly(BasePlotly):
                             colors_w95_w100_r_vals + colors_mid_w95_r_p_vals + \
                             colors_w60_mid_r_vals + colors_mid_w60_r_p_vals + \
                             colors_w30_mid_top_r_vals + colors_w30_mid_bot_r_vals + \
-                            list(reversed(colors_mid_w60_r_p_vals)) + list(reversed(colors_w60_mid_r_vals)) + list(reversed(colors_mid_w95_r_p_vals)) + list(reversed(colors_w95_w100_r_vals))
+                            list(reversed(colors_mid_w60_r_p_vals)) + list(reversed(colors_w60_mid_r_vals)) + \
+                            list(reversed(colors_mid_w95_r_p_vals)) + list(reversed(colors_w95_w100_r_vals))
 
             plt.bar(np.arange(len(y_plot_vals_r)), y_plot_vals_r, width=1)
             plt.show()
@@ -468,12 +472,10 @@ class FuzzyPlotly(BasePlotly):
 # For full fuzz
 class DensPlotly(BasePlotly):
     def __init__(self, x_list, y_list, ci95p, ci95n,
-                 fuzz_size, fuzz_n,
-                 color='#4286f4', median=True, median_color='#000000', median_width=1, layout={'showlegend': False}, figs=[], output='auto'):
-        super(DensPlotly, self).__init__(x_list, y_list,
-                                          ci95p, ci95n,
-                                          fuzz_size, fuzz_n,
-                                          )
+                 fuzz_size, fuzz_n, color='#4286f4',
+                 median=True, median_color='#000000', median_width=1,
+                 layout={'showlegend': False}, figs=[], output='auto'):
+        super(DensPlotly, self).__init__(x_list, y_list, ci95p, ci95n, fuzz_size, fuzz_n)
         self.x_list = x_list
         self.y_list = y_list
         self.ci95p = ci95p
@@ -558,12 +560,14 @@ class DensPlotly(BasePlotly):
             # Upper fuzz
             cur_up_upper = [upper - (area*(i-1)) for (upper, area) in zip(upper, area_per_fuzz)]
             cur_up_lower = [upper - (area*(i)) for (upper, area) in zip(upper, area_per_fuzz)]
-            self.generate_shape(cur_up_upper, cur_up_lower, {"color": f'rgb{fuzz_colors[fuzz_n-i]}', "color_edge": f'rgb{fuzz_colors[fuzz_n-i]}'})
+            self.generate_shape(cur_up_upper, cur_up_lower, {"color": f'rgb{fuzz_colors[fuzz_n-i]}',
+                                                             "color_edge": f'rgb{fuzz_colors[fuzz_n-i]}'})
 
             # Lower fuzz - Building from bottom to top
             cur_down_upper = [upper + (area*(i)) for (upper, area) in zip(lower, area_per_fuzz)]
             cur_down_lower = [upper + (area*(i-1)) for (upper, area) in zip(lower, area_per_fuzz)]
-            self.generate_shape(cur_down_upper, cur_down_lower, {"color": f'rgb{fuzz_colors[fuzz_n-i]}', "color_edge": f'rgb{fuzz_colors[fuzz_n-i]}'})
+            self.generate_shape(cur_down_upper, cur_down_lower, {"color": f'rgb{fuzz_colors[fuzz_n-i]}',
+                                                                 "color_edge": f'rgb{fuzz_colors[fuzz_n-i]}'})
 
     def create_data(self):
         colors_center_rgb_w95 = self.calculate_fuzz_color_normal(self.fuzz_n)
