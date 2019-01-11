@@ -152,7 +152,20 @@ class BasePlotly:
         self.create_data()
         if self.median_line:
             self.create_median()
+        if self.figs:
+            self.data += self.figs
         self.plotly_plot()
+
+    def export(self):
+        """
+        Runs all internal logic to create and returns plotly data structure.
+        """
+        self.create_data()
+        if self.median_line:
+            self.create_median()
+        if self.figs:
+            self.data += self.figs
+        return self.data
 
 
 class FuzzyPlotly(BasePlotly):

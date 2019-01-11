@@ -17,12 +17,17 @@ if __name__ == '__main__':
 
     layout = {
         'showlegend': False,
-        'title': 'UK Migration figures (2013-2018)',
+        # 'title': 'UK Migration figures (2013-2018)',
         'xaxis': {
             'title': 'Date',
             'titlefont': {
                 'family': 'Arial, sans-serif',
                 'size': 18,
+                'color': 'black',
+            },
+            'tickfont': {
+                'family': 'Arial, sans-serif',
+                'size': 15,
                 'color': 'black',
             },
             'ticktext':x_label_new,
@@ -44,6 +49,11 @@ if __name__ == '__main__':
             'titlefont': {
                 'family': 'Arial, sans-serif',
                 'size': 18,
+                'color': 'black',
+            },
+            'tickfont': {
+                'family': 'Arial, sans-serif',
+                'size': 15,
                 'color': 'black',
             },
             'showgrid':False,
