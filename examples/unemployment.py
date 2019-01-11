@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
     layout = {
         'showlegend': False,
-        # 'title': 'UK Migration figures (2013-2018)',
+        'title': 'UK Migration figures (2013-2018)',
         'xaxis': {
             'title': 'Date',
             'titlefont': {

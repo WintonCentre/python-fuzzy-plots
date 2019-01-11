@@ -1,8 +1,4 @@
-# Temp Notes Personal
-### Testing
-python -m unittest
-
-# Python Fuzzy Plots
+# Uncertainty Plots with python and plotly.
 Fuzzy Plots using python and plotly showing uncertainty. Similar to (x chart?) by Office for National Statistics.
 (TODO: insert pic)
 
@@ -20,11 +16,15 @@ In terminal type
 Create a file "example.py" with the code below
 ```
 # Import the module
-from fuzzy.fuzzy_main import FuzzyPlotly, x_sample_values, y_sample_values, std
+from fuzzy.core import StandardErrorPlot
 
-# Create a plot using sample values.
-my_plt = FuzzyPlotly(x_sample_values, y_sample_values, std)
-my_plt.plot()
+standard_error = StandardErrorPlot(
+    x, y_median,
+    ci95p=y_p_95, ci95n=y_n_95,
+    layout=layout,
+)
+
+standard_error.plot()
 ```
 In terminal execute the file.
 
