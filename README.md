@@ -120,8 +120,8 @@ Required parameters:
 
 
 ### Fuzzy fan chart
-For some applications, you may prefer to blur the boundaries between the fans. 
-** Add in some justification of this from the user testing work **
+For some applications, it may be preferable to blur the boundaries between the fans. 
+--Add justification of this--
 
 `FuzzyPlotly(x, y, ci95p, ci95n, ci60p, ci60n, ci30p, ci30n, fuzz_size, fuzz_n, color='#4286f4', median_line=True, median_line_color='#000000', median_line_width=1, layout={'showlegend': False}, figs=[], output='auto')`
 
