@@ -179,7 +179,6 @@ class FuzzyPlotly(BasePlotly):
         super(FuzzyPlotly, self).__init__(x, y,
                                           ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
                                           fuzz_size, fuzz_n,
-                                          # layout, figs,
                                           )
         self.x_list = x
         self.y_list = y
