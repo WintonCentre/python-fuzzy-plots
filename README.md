@@ -13,7 +13,7 @@ Density chart example
 Fuzzy fan chart example
 ![Fuzzy fan plot](example_images/04-fuzzy-fan.png)
 
-Fuzzy fan Zoomed
+Fuzzy fan - Zoomed
 ![Fuzzy fan plot](example_images/04.1-zoomed.png)
 
 
@@ -82,7 +82,7 @@ In terminal execute the file.
 ### Solid Fan chart
 `FanPlotly(x, y, ci95p, ci95n, ci60p, ci60n, ci30p, ci30n, fuzz_size, fuzz_n, color='#4286f4', median_line=True, median_line_color='#000000', median_line_width=1, layout={'showlegend': False}, figs=[], output='auto')`
 
-Required parameters
+Required parameters:
 - x: x-axis values in a list.
 - y: y-axis median values in a list.
 - ci95p: Upper values of 95% confidence interval in a list.
@@ -98,7 +98,7 @@ Required parameters
 
 `DensPlotly(x, y, ci95p, ci95n, fuzz_n, color='#4286f4', median_line=True, median_line_color='#000000', median_line_width=1, layout={'showlegend': False}, figs=[], output='auto')`
 
-Required parameters
+Required parameters:
 - x: x-axis values in a list.
 - y: y-axis median values in a list.
 - ci95p: Upper values of 95% confidence interval in a list.
@@ -108,17 +108,18 @@ Required parameters
 
 `StandardErrorPlot(x, y, ci95p, ci95n, fuzz_n, color='#4286f4', median_line=True, median_line_color='#000000', median_line_width=1, layout={'showlegend': False}, figs=[], output='auto')`
 
-Required parameters
+Required parameters:
 - x: x-axis values in a list.
 - y: y-axis median values in a list.
 - ci95p: Upper values of 95% confidence interval in a list.
 - ci95n: Lower values of 95% confidence interval in a list.
+- fuzz_n: The number of colour levels used to implement the blur. Takes integer value between 0-150.
 
 
 ### Fuzzy fan chart
 `FuzzyPlotly(x, y, ci95p, ci95n, ci60p, ci60n, ci30p, ci30n, fuzz_size, fuzz_n, color='#4286f4', median_line=True, median_line_color='#000000', median_line_width=1, layout={'showlegend': False}, figs=[], output='auto')`
 
-Required parameters
+Required parameters:
 - x: x-axis values in a list.
 - y: y-axis median values in a list.
 - ci95p: Upper values of 95% confidence interval in a list.
@@ -151,25 +152,25 @@ Possible parameters for output are "auto", "offline", "online", "jupyter"
 "auto" is is the value used when output parameter isn't given by an user.
 FuzzyPlot will try to figure out user's running environment and automatically pick best setting.
 
-`fuzzy_data = FuzzyPlotly([1,2,3,4,5], [2,6,8,6,5], [1,2,3,2,2])`
+`dens_plot = DensPlotly(x=x, y=y_median, ci95p=y_p_95, ci95n=y_n_95, fuzz_n=30)`
 
 ##### Offline
 By default this mode will be used unless it is being run inside of jupyter notebook.
 If output="offline" is set within jupyter html page with plot will be generated and opened.
 
-`fuzzy_data = FuzzyPlotly([1,2,3,4,5], [2,6,8,6,5], [1,2,3,2,2], output='offline')`
+`dens_plot = DensPlotly(x=x, y=y_median, ci95p=y_p_95, ci95n=y_n_95, fuzz_n=30, output='offline')`
 
 ##### Jupyter Notebook
 User shouldn't need to pass this value. Passing jupyter will force FuzzyPlotly to use plot option for jupyter notebook.
 
-`fuzzy_data = FuzzyPlotly([1,2,3,4,5], [2,6,8,6,5], [1,2,3,2,2], output='jupyter')`
+`dens_plot = DensPlotly(x=x, y=y_median, ci95p=y_p_95, ci95n=y_n_95, fuzz_n=30, output='jupyter')`
 
 ##### Online
 To use online mode please add your username/api key from plot.ly at start and run the code.
 
 `plotly.tools.set_credentials_file(username='jack89', api_key='qwfw32EW3twqkitdf')`
 
-`fuzzy_data = FuzzyPlotly([1,2,3,4,5], [2,6,8,6,5], [1,2,3,2,2], output='online')`
+`dens_plot = DensPlotly(x=x, y=y_median, ci95p=y_p_95, ci95n=y_n_95, fuzz_n=30, output='online')`
 
 (Refer to plotly documentation for addition information.
  https://plot.ly/python/configuration-options/
@@ -292,7 +293,3 @@ layout = go.Layout(
 FuzzyPlotly(x_sample_values, y_sample_values, std, layout=layout).plot()
 
 ```
-
-# Authors
-
-# License
