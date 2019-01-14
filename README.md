@@ -1,6 +1,7 @@
 # Uncertainty Plots with python and plotly.
-Fuzzy Plots using python and plotly showing uncertainty. Similar to (x chart?) by Office for National Statistics.
-(TODO: insert pic)
+Fan charts and their variations explored by the Winton Centre for Risk and Evidence Communication. Similar to fan chart by Office for National Statistics.
+
+
 
 Creates fuzzy boundaries around confidence interval at 30%, 60%, 95%.
 

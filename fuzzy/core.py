@@ -1,6 +1,7 @@
 import plotly.plotly as py
 import plotly.graph_objs as go
 import plotly
+import plotly.io as pio
 from scipy.stats import norm
 
 
@@ -155,6 +156,17 @@ class BasePlotly:
         if self.figs:
             self.data += self.figs
         self.plotly_plot()
+
+    def write_image(self, filename):
+        """
+        Runs all internal logic to create and plot chart.
+        """
+        self.create_data()
+        if self.median_line:
+            self.create_median()
+        if self.figs:
+            self.data += self.figs
+        pio.write_image(self.data, filename)
 
     def export(self):
         """
