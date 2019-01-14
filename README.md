@@ -139,51 +139,51 @@ Required parameters:
 
 ### Shared optional parameters.
 
-- color: Colour of fans/confidence interval. Takes in a hex value in string. Default value is #4286f4. Automatically determines colour based on confidence interval area.
-- layout: [Plotly layout](https://plot.ly/python/reference/#layout) object to configure layout of chart.
+- color: The colour of the highest density band given as a hex value in string. The default value is #4286f4. Lower density colours are calculated from this value,
+- layout: [Plotly layout](https://plot.ly/python/reference/#layout) - an object to configure the layout of the chart.
 - median_line: True/False to enable or disable median line. Default value is True.
-- median_line_color: Colour of median line. Takes in a hex value in string. Default value is #000000.
-- median_line_width: Thickness of median line. Takes in integer. Default value is 1.
+- median_line_color: Colour of the median line. Takes a hex value in string. The default value is #000000 (black).
+- median_line_width: Thickness of the median line. Takes an integer. The default value is 1.
 - figs: Takes in plotly data structures to add additional charts. Pass in as a list if there are multiple figures to plot.
 
 
 ## Other Options
 
 ### Plotting options
-FuzzyPlotly supports offline, online and jupyter notebook. It automatically defaults to offline mode and detect running of jupyter notebook (ipython).
+FuzzyPlotly supports offline, online, and jupyter notebooks. It automatically defaults to offline mode and detect running of jupyter notebook (ipython).
 
 Possible parameters for output are "auto", "offline", "online", "jupyter"
 
 ##### Auto
-"auto" is is the value used when output parameter isn't given by an user.
-FuzzyPlot will try to figure out user's running environment and automatically pick best setting.
+"auto" is is the value used when output parameter isn't given by an user. 
+FuzzyPlot will switch between offline and jupyter notebook mode depending on the user's running environment.
 
 `dens_plot = DensPlotly(x=x, y=y_median, ci95p=y_p_95, ci95n=y_n_95, fuzz_n=30)`
 
 ##### Offline
 By default this mode will be used unless it is being run inside of jupyter notebook.
-If output="offline" is set within jupyter html page with plot will be generated and opened.
+If output="offline" is set within jupyter, it will open a browser pointing to an html page containing the plot.
 
 `dens_plot = DensPlotly(x=x, y=y_median, ci95p=y_p_95, ci95n=y_n_95, fuzz_n=30, output='offline')`
 
 ##### Jupyter Notebook
-User shouldn't need to pass this value. Passing jupyter will force FuzzyPlotly to use plot option for jupyter notebook.
+Passing jupyter will force FuzzyPlotly to use plot option for jupyter notebook. Not normally necessary.
 
 `dens_plot = DensPlotly(x=x, y=y_median, ci95p=y_p_95, ci95n=y_n_95, fuzz_n=30, output='jupyter')`
 
 ##### Online
-To use online mode please add your username/api key from plot.ly at start and run the code.
+To use online mode please sign up on the Plotly web site and obtain add your username/api key from the settings page. 
 
 `plotly.tools.set_credentials_file(username='jack89', api_key='qwfw32EW3twqkitdf')`
 
 `dens_plot = DensPlotly(x=x, y=y_median, ci95p=y_p_95, ci95n=y_n_95, fuzz_n=30, output='online')`
 
-(Refer to plotly documentation for addition information.
+(Refer to the plotly documentation for addition information.
  https://plot.ly/python/configuration-options/
 )
 
 ## Labeling
-Pass in plotly layout to customize figure including labels.
+Pass in a plotly layout object to configure titles, labels, and fonts.
 
 
 ```
