@@ -21,10 +21,10 @@ Fuzzy fan - Zoomed
 Python 3.4+
 
 ## Usage and Examples - Jupyter Notebook
-Best way to see usage are [jupyter notebook examples](examples/unemployment_example.ipynb).
+Best way to see usage is through the [jupyter notebook examples](examples/unemployment_example.ipynb).
 
-Local copy can also be run which allows modification.
-In terminal:
+To access a local editable copy in Jupyter notebooks, you may need to install Jupyter first.
+In a terminal:
 ```
 pip install jupyter
 
@@ -33,7 +33,7 @@ jupyter notebook
 
 ## Getting started
 
-### (Optional) - Create virtual environment.
+### (Optional, but recommended) - Create virtual environment.
 _1. Go to project directory_
 
 _2. Create a virtual environment_
@@ -49,7 +49,7 @@ In terminal:
 
 ### Installation
 
-Install module using pip.
+Install this module using pip.
 In terminal type: `pip install .`
  
  (TODO FUTURE: `pip install fuzzyplots`)
@@ -58,8 +58,8 @@ In terminal type: `pip install .`
 
 #### Basic Plot
 
-Create a python with the code below.
-Provide your own values to plot to parameter.
+Within Jupyter or a python file, start with the code below.
+Fanplotly generates a Plotly fan chart using parameters which are described below.
 ```
 # Import the module
 from fuzzy.core import FanPlotly
@@ -75,9 +75,13 @@ solid_ci = FanPlotly(
 solid_ci.plot()
 
 ```
-In terminal execute the file.
+We first create an instance of the FanPlotly class, and then call its plot method to generate the chart.
+
+Execute the code to see the chart.
 
 ## Classes
+
+There are a number of python classes for the various possible chart types. 
 
 ### Solid Fan chart
 `FanPlotly(x, y, ci95p, ci95n, ci60p, ci60n, ci30p, ci30n, fuzz_size, fuzz_n, color='#4286f4', median_line=True, median_line_color='#000000', median_line_width=1, layout={'showlegend': False}, figs=[], output='auto')`
@@ -91,8 +95,6 @@ Required parameters:
 - ci60n: Lower values of 60% confidence interval in a list.
 - ci30p: Upper values of 30% confidence interval in a list.
 - ci30n: Lower values of 30% confidence interval in a list.
-- fuzz_size: The width of the blurring. Takes integer value between 0-1.
-- fuzz_n: The number of colour levels used to implement the blur. Takes integer value between 0-150.
 
 ### Density chart
 
@@ -103,6 +105,8 @@ Required parameters:
 - y: y-axis median values in a list.
 - ci95p: Upper values of 95% confidence interval in a list.
 - ci95n: Lower values of 95% confidence interval in a list.
+- fuzz_n: The number of colour levels used to indicate the likely value as a density. Takes an integer value between 0-150.
+
 
 ### Standard error chart
 
@@ -113,10 +117,12 @@ Required parameters:
 - y: y-axis median values in a list.
 - ci95p: Upper values of 95% confidence interval in a list.
 - ci95n: Lower values of 95% confidence interval in a list.
-- fuzz_n: The number of colour levels used to implement the blur. Takes integer value between 0-150.
 
 
 ### Fuzzy fan chart
+For some applications, you may prefer to blur the boundaries between the fans. 
+** Add in some justification of this from the user testing work **
+
 `FuzzyPlotly(x, y, ci95p, ci95n, ci60p, ci60n, ci30p, ci30n, fuzz_size, fuzz_n, color='#4286f4', median_line=True, median_line_color='#000000', median_line_width=1, layout={'showlegend': False}, figs=[], output='auto')`
 
 Required parameters:
