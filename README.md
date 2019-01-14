@@ -1,5 +1,5 @@
 # Uncertainty Plots with python and plotly.
-Fan charts and their variations explored by the Winton Centre for Risk and Evidence Communication. Similar to fan chart by Office for National Statistics. Take a look at [jupyter notebook examples](examples/unemployment_example.ipynb) to see the usage.
+Fan charts and their variations explored by the Winton Centre for Risk and Evidence Communication. Similar to fan chart by Office for National Statistics. Take a look at [jupyter notebook examples](https://nbviewer.jupyter.org/github/WintonCentre/python-fuzzy-plots/blob/master/examples/unemployment_example.ipynb) to see the usage.
 
 Solid fan chart example
 ![Fan plot](example_images/03-fan.png)
@@ -21,7 +21,7 @@ Fuzzy fan - Zoomed
 Python 3.4+
 
 ## Usage and Examples - Jupyter Notebook
-Best way to see usage is through the [jupyter notebook examples](examples/unemployment_example.ipynb).
+Best way to see usage is through the [jupyter notebook examples](https://nbviewer.jupyter.org/github/WintonCentre/python-fuzzy-plots/blob/master/examples/unemployment_example.ipynb).
 
 To access a local editable copy in Jupyter notebooks, you may need to install Jupyter first.
 In a terminal:
