@@ -118,7 +118,7 @@ if __name__ == '__main__':
             'showline': True,
             'tickmode': 'array',
             'ticks': 'outside',
-            'mirrormirror': True,
+            'mirror': True,
             'tickwidth': 2,
 
         },
@@ -180,7 +180,7 @@ if __name__ == '__main__':
     dens_chart = DensPlotly(
         x=x, y=y_median,
         ci95p=y_p_95, ci95n=y_n_95,
-        fuzz_n=1,
+        fuzz_n=10,
         output='offline',
         color=color,
         median_line_color=median_line_color,
