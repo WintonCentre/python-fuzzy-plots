@@ -21,7 +21,7 @@ Fuzzy fan - Zoomed
 Python 3.4+
 
 ## Usage and Examples - Jupyter Notebook
-Best way to see usage are [jupyter notebook examples](https://github.com/WintonCentre/python-fuzzy-plots/blob/master/examples/unemployment_example.html).
+Best way to see usage are [jupyter notebook examples](examples/unemployment_example.html).
 
 Local copy can also be run which allows modification.
 In terminal:
