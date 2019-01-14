@@ -7,7 +7,7 @@ from scipy.stats import norm
 
 class BasePlotly:
     def __init__(self, x, y, ci95p, ci95n,
-                 fuzz_size, fuzz_n, color='#4286f4',
+                 fuzz_size, color_levels, color='#4286f4',
                  median_line=True, median_line_color='#000000', median_line_width=1,
                  layout={'showlegend': False}, figs=[], output="auto"):
         self.x_list = x
@@ -15,7 +15,7 @@ class BasePlotly:
         self.ci95p = ci95p
         self.ci95n = ci95n
         self.fuzz_size = fuzz_size
-        self.fuzz_n = fuzz_n
+        self.color_levels = color_levels
         self.layout = layout
         self.figs = figs
         self.color = color
@@ -172,13 +172,13 @@ class BasePlotly:
 class FuzzyPlotly(BasePlotly):
     def __init__(self, x, y,
                  ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
-                 fuzz_size, fuzz_n,
+                 fuzz_size, color_levels,
                  color='#4286f4', median_line=True, median_line_color='#000000', median_line_width=1,
                  layout={'showlegend': False}, figs=[], output='auto'
                  ):
         super(FuzzyPlotly, self).__init__(x, y,
                                           ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
-                                          fuzz_size, fuzz_n,
+                                          fuzz_size, color_levels,
                                           )
         self.x_list = x
         self.y_list = y
@@ -189,7 +189,7 @@ class FuzzyPlotly(BasePlotly):
         self.ci30p = ci30p
         self.ci30n = ci30n
         self.fuzz_size = fuzz_size
-        self.fuzz_n = fuzz_n
+        self.color_levels = color_levels
         self.layout = layout
         self.figs = figs
         self.color = color
@@ -244,13 +244,13 @@ class FuzzyPlotly(BasePlotly):
         return color_opacity
 
     # Using tween to ease start and end
-    def calculate_fuzz_colors(self, color_a, color_b, fuzz_n, ease='ease-in'):
+    def calculate_fuzz_colors(self, color_a, color_b, color_levels, ease='ease-in'):
         """
         Calculated fuzz colors and return
         Optional easing function to smooth out and reduce colour banding issue.
         :param color_a: Starting colour.
         :param color_b: Ending colour.
-        :param fuzz_n: Number of divisions (fuzz) to have.
+        :param color_levels: Number of divisions (fuzz) to have.
         :param ease: ease-in, ease-out, ease-linear.
         :return: list of colors in RGB tuple
         """
@@ -259,7 +259,7 @@ class FuzzyPlotly(BasePlotly):
         color_a_r, color_a_g, color_a_b = color_a
         color_b_r, color_b_g, color_b_b = color_b
         colors = []
-        fuzz_n = int(fuzz_n)
+        color_levels = int(color_levels)
 
         def ease_in_linear(t, b, c, d):
             return c*(t/d)*1+b
@@ -284,66 +284,66 @@ class FuzzyPlotly(BasePlotly):
             t_at_pos = -c*((new)*(new-2))+b
             return int(round(t_at_pos))
 
-        for i in range(fuzz_n):
+        for i in range(color_levels):
             if ease == 'ease-in':
                 color_new_r = ease_in_cube(t=i, b=color_a[0],
                                       c=abs(( - color_a_r + color_b_r)),
-                                      d=fuzz_n)
+                                      d=color_levels)
 
                 color_new_g = ease_in_cube(t=i, b=color_a[1],
                                            c=abs(( - color_a_g + color_b_g)),
-                                           d=fuzz_n)
+                                           d=color_levels)
 
                 color_new_b = ease_in_cube(t=i, b=color_a[2],
                                            c=abs(( - color_a_b + color_b_b)),
-                                           d=fuzz_n)
+                                           d=color_levels)
             if ease == 'ease-out':
                 color_new_r = ease_out_cube(t=i, b=color_a[0],
                                       c=abs(( - color_a_r + color_b_r)),
-                                      d=fuzz_n)
+                                      d=color_levels)
 
                 color_new_g = ease_out_cube(t=i, b=color_a[1],
                                            c=abs(( - color_a_g + color_b_g)),
-                                           d=fuzz_n)
+                                           d=color_levels)
 
                 color_new_b = ease_out_cube(t=i, b=color_a[2],
                                            c=abs(( - color_a_b + color_b_b)),
-                                           d=fuzz_n)
+                                           d=color_levels)
             if ease == 'ease-linear':
                 color_new_r = ease_in_linear(t=i, b=color_a[0],
                                             c=abs(( - color_a_r + color_b_r)),
-                                            d=fuzz_n)
+                                            d=color_levels)
 
                 color_new_g = ease_in_linear(t=i, b=color_a[1],
                                             c=abs(( - color_a_g + color_b_g)),
-                                            d=fuzz_n)
+                                            d=color_levels)
 
                 color_new_b = ease_in_linear(t=i, b=color_a[2],
                                             c=abs(( - color_a_b + color_b_b)),
-                                            d=fuzz_n)
+                                            d=color_levels)
 
             color = (color_new_r, color_new_g, color_new_b)
             colors.append(color)
         return colors
 
-    def create_fuzzy_shape(self, upper, lower, fuzz_size, fuzz_n, color_center, fuzz_colors_upper, fuzz_colors_lower):
+    def create_fuzzy_shape(self, upper, lower, fuzz_size, color_levels, color_center, fuzz_colors_upper, fuzz_colors_lower):
         """
         # Finds fuzz for confidence interval with fuzz size and fuzz n.
         # Creates Upper fuzz shape, lower fuzz shape, and central area shape.
         """
         areas_upper = self.calc_fuzz_area(upper, lower, fuzz_size=fuzz_size)
-        area_per_fuzz = [area/fuzz_n for area in areas_upper]
+        area_per_fuzz = [area/color_levels for area in areas_upper]
 
         # Create area with all the fuzz and by generating upper and lower of each line
         # Building from Top to bottom
         # Since it's drawn from up to down, need list of strongest color to weakest.
-        for i in range(1, fuzz_n+1):
+        for i in range(1, color_levels+1):
             # Upper fuzz
             # Building from top to bottom. Color is reversed. Going from last to first
             cur_up_upper = [upper - (area*(i-1)) for (upper, area) in zip(upper, area_per_fuzz)]
             cur_up_lower = [upper - (area*(i)) for (upper, area) in zip(upper, area_per_fuzz)]
-            self.generate_shape(cur_up_upper, cur_up_lower, {"color": f'rgb{fuzz_colors_upper[fuzz_n-i]}',
-                                                             "color_edge": f'rgb{fuzz_colors_upper[fuzz_n-i]}'})
+            self.generate_shape(cur_up_upper, cur_up_lower, {"color": f'rgb{fuzz_colors_upper[color_levels-i]}',
+                                                             "color_edge": f'rgb{fuzz_colors_upper[color_levels-i]}'})
             # Lower fuzz - Building from bottom to top
             cur_down_upper = [upper + (area*(i)) for (upper, area) in zip(lower, area_per_fuzz)]
             cur_down_lower = [upper + (area*(i-1)) for (upper, area) in zip(lower, area_per_fuzz)]
@@ -379,7 +379,7 @@ class FuzzyPlotly(BasePlotly):
         colors_w95_w100 = self.calculate_fuzz_colors(
             color_rgb_w95,
             (255, 255, 255),
-            self.fuzz_n,
+            self.color_levels,
             'ease-in',
         )
 
@@ -393,7 +393,7 @@ class FuzzyPlotly(BasePlotly):
         colors_w30_mid = self.calculate_fuzz_colors(
             color_rgb_w30,
             color_w30_mid_w60,
-            self.fuzz_n,
+            self.color_levels,
             'ease-in',
         )
 
@@ -401,7 +401,7 @@ class FuzzyPlotly(BasePlotly):
         colors_mid_w60 = self.calculate_fuzz_colors(
             color_w30_mid_w60,
             color_rgb_w60,
-            self.fuzz_n,
+            self.color_levels,
             'ease-out',
         )
 
@@ -415,7 +415,7 @@ class FuzzyPlotly(BasePlotly):
         colors_w60_mid = self.calculate_fuzz_colors(
             color_rgb_w60,
             color_w60_mid_w95,
-            self.fuzz_n,
+            self.color_levels,
             'ease-in',
             )
 
@@ -423,33 +423,33 @@ class FuzzyPlotly(BasePlotly):
         colors_mid_w95 = self.calculate_fuzz_colors(
             color_w60_mid_w95,
             color_rgb_w95,
-            self.fuzz_n,
+            self.color_levels,
             'ease-out',
             )
 
         # Top part confidence interval colors are reverse of bottom colors. Like mirror image.
         self.create_fuzzy_shape(
-            upper=self.ci95p, lower=self.ci60p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+            upper=self.ci95p, lower=self.ci60p, fuzz_size=self.fuzz_size, color_levels=self.color_levels,
             color_center={"color": f'rgb{color_rgb_w95}', "color_edge": f'rgb{color_rgb_w95}'},
             fuzz_colors_upper=colors_w95_w100, fuzz_colors_lower=colors_mid_w95,
         )
         self.create_fuzzy_shape(
-            upper=self.ci60p, lower=self.ci30p, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+            upper=self.ci60p, lower=self.ci30p, fuzz_size=self.fuzz_size, color_levels=self.color_levels,
             color_center={"color": f'rgb{color_rgb_w60}', "color_edge": f'rgb{color_rgb_w60}'},
             fuzz_colors_upper=colors_w60_mid, fuzz_colors_lower=colors_mid_w60,
         )
         self.create_fuzzy_shape(
-            upper=self.ci30p, lower=self.ci30n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+            upper=self.ci30p, lower=self.ci30n, fuzz_size=self.fuzz_size, color_levels=self.color_levels,
             color_center={"color": f'rgb{color_rgb_w30}', "color_edge": f'rgb{color_rgb_w30}'},
             fuzz_colors_upper=colors_w30_mid, fuzz_colors_lower=list(reversed(colors_w30_mid)),
         )
         self.create_fuzzy_shape(
-            upper=self.ci30n, lower=self.ci60n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+            upper=self.ci30n, lower=self.ci60n, fuzz_size=self.fuzz_size, color_levels=self.color_levels,
             color_center={"color": f'rgb{color_rgb_w60}', "color_edge": f'rgb{color_rgb_w60}'},
             fuzz_colors_upper=list(reversed(colors_mid_w60)), fuzz_colors_lower=list(reversed(colors_w60_mid)),
         )
         self.create_fuzzy_shape(
-            upper=self.ci60n, lower=self.ci95n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+            upper=self.ci60n, lower=self.ci95n, fuzz_size=self.fuzz_size, color_levels=self.color_levels,
             color_center={"color": f'rgb{color_rgb_w95}', "color_edge": f'rgb{color_rgb_w95}'},
             fuzz_colors_upper=list(reversed(colors_mid_w95)), fuzz_colors_lower=list(reversed(colors_w95_w100)),
         )
@@ -485,18 +485,19 @@ class FuzzyPlotly(BasePlotly):
 
 # For full fuzz
 class DensPlotly(BasePlotly):
-    def __init__(self, x, y, ci95p, ci95n,
-                 fuzz_n, color='#4286f4',
+    def __init__(self, x, y, ci95p,
+                 color_levels, color='#4286f4',
                  median_line=True, median_line_color='#000000', median_line_width=1,
                  layout={'showlegend': False}, figs=[], output='auto'):
         fuzz_size = 1
-        super(DensPlotly, self).__init__(x, y, ci95p, ci95n, fuzz_size, fuzz_n)
+        ci95n = [median - (up-median) for median, up in zip(y, ci95p)]
+        super(DensPlotly, self).__init__(x, y, ci95p, ci95n, fuzz_size, color_levels)
         self.x_list = x
         self.y_list = y
         self.ci95p = ci95p
         self.ci95n = ci95n
         self.fuzz_size = fuzz_size
-        self.fuzz_n = fuzz_n
+        self.color_levels = color_levels
         self.layout = layout
         self.figs = figs
         self.color = color
@@ -536,15 +537,15 @@ class DensPlotly(BasePlotly):
     def normalize_data(self, val, val_max, val_min):
         return (val - val_min) / (val_max - val_min)
 
-    def calculate_fuzz_color_normal(self, fuzz_n):
+    def calculate_fuzz_color_normal(self, color_levels):
         """
         Assume it's standard normal distribution with loc=0, scale=1 (mean=0, std=1)
         Normalizes opacity from 0 to 1.
-        :param fuzz_n:
+        :param color_levels:
         :return:
         """
         w95 = 1.959964
-        step = w95 / fuzz_n
+        step = w95 / color_levels
 
         color = self.hex_to_rgb(self.color)
         r_color, g_color, b_color = color
@@ -556,7 +557,7 @@ class DensPlotly(BasePlotly):
         norm_min = norm.pdf(w95)
 
         # Going from 0 to 95%. 0 is highest and 95% is lowest.
-        for i in range(fuzz_n):
+        for i in range(color_levels):
             # This is using normalized so 0 to 1 now
             opacity = self.normalize_data(val=norm.pdf(i * step), val_max=norm_max, val_min=norm_min)
 
@@ -567,28 +568,28 @@ class DensPlotly(BasePlotly):
         return colors
 
     # Finds fuzz for confidence interval with fuzz size and fuzz n.
-    def create_fuzzy_shape(self, upper, lower, fuzz_size, fuzz_n, fuzz_colors):
+    def create_fuzzy_shape(self, upper, lower, fuzz_size, color_levels, fuzz_colors):
         areas_upper = self.calc_fuzz_area(upper, lower, fuzz_size=fuzz_size)
-        area_per_fuzz = [area/fuzz_n for area in areas_upper]
+        area_per_fuzz = [area/color_levels for area in areas_upper]
 
-        for i in range(1, fuzz_n+1):
+        for i in range(1, color_levels+1):
             # Upper fuzz
             cur_up_upper = [upper - (area*(i-1)) for (upper, area) in zip(upper, area_per_fuzz)]
             cur_up_lower = [upper - (area*(i)) for (upper, area) in zip(upper, area_per_fuzz)]
-            self.generate_shape(cur_up_upper, cur_up_lower, {"color": f'rgb{fuzz_colors[fuzz_n-i]}',
-                                                             "color_edge": f'rgb{fuzz_colors[fuzz_n-i]}'})
+            self.generate_shape(cur_up_upper, cur_up_lower, {"color": f'rgb{fuzz_colors[color_levels-i]}',
+                                                             "color_edge": f'rgb{fuzz_colors[color_levels-i]}'})
 
             # Lower fuzz - Building from bottom to top
             cur_down_upper = [upper + (area*(i)) for (upper, area) in zip(lower, area_per_fuzz)]
             cur_down_lower = [upper + (area*(i-1)) for (upper, area) in zip(lower, area_per_fuzz)]
-            self.generate_shape(cur_down_upper, cur_down_lower, {"color": f'rgb{fuzz_colors[fuzz_n-i]}',
-                                                                 "color_edge": f'rgb{fuzz_colors[fuzz_n-i]}'})
+            self.generate_shape(cur_down_upper, cur_down_lower, {"color": f'rgb{fuzz_colors[color_levels-i]}',
+                                                                 "color_edge": f'rgb{fuzz_colors[color_levels-i]}'})
 
     def create_data(self):
-        colors_center_rgb_w95 = self.calculate_fuzz_color_normal(self.fuzz_n)
+        colors_center_rgb_w95 = self.calculate_fuzz_color_normal(self.color_levels)
 
         self.create_fuzzy_shape(
-            upper=self.ci95p, lower=self.ci95n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+            upper=self.ci95p, lower=self.ci95n, fuzz_size=self.fuzz_size, color_levels=self.color_levels,
             fuzz_colors=colors_center_rgb_w95,
         )
 
@@ -596,15 +597,15 @@ class DensPlotly(BasePlotly):
 class StandardErrorPlot(BasePlotly):
     def __init__(self, *args, **kwargs):
         kwargs['fuzz_size'] = 1
-        kwargs['fuzz_n'] = 1
+        kwargs['color_levels'] = 1
         super(StandardErrorPlot, self).__init__(*args, **kwargs)
 
     # Finds fuzz for confidence interval with fuzz size and fuzz n.
-    def create_fuzzy_shape(self, upper, lower, fuzz_size, fuzz_n):
+    def create_fuzzy_shape(self, upper, lower, fuzz_size, color_levels):
         areas_upper = self.calc_fuzz_area(upper, lower, fuzz_size=fuzz_size)
-        area_per_fuzz = [area/fuzz_n for area in areas_upper]
+        area_per_fuzz = [area/color_levels for area in areas_upper]
 
-        for i in range(1, fuzz_n+1):
+        for i in range(1, color_levels+1):
             # Upper fuzz
             cur_up_upper = [upper - (area*(i-1)) for (upper, area) in zip(upper, area_per_fuzz)]
             cur_up_lower = [upper - (area*(i)) for (upper, area) in zip(upper, area_per_fuzz)]
@@ -618,12 +619,12 @@ class StandardErrorPlot(BasePlotly):
     def create_data(self):
 
         self.create_fuzzy_shape(
-            upper=self.ci95p, lower=self.ci95n, fuzz_size=self.fuzz_size, fuzz_n=self.fuzz_n,
+            upper=self.ci95p, lower=self.ci95n, fuzz_size=self.fuzz_size, color_levels=self.color_levels,
         )
 
 
 class FanPlotly(FuzzyPlotly):
     def __init__(self, *args, **kwargs):
         kwargs['fuzz_size'] = 0
-        kwargs['fuzz_n'] = 1
+        kwargs['color_levels'] = 1
         super(FanPlotly, self).__init__(*args, **kwargs)

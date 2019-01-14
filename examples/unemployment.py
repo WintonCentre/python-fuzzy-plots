@@ -136,7 +136,7 @@ if __name__ == '__main__':
         ci95p=y_median, ci95n=y_median,
         ci60p=y_median, ci60n=y_median,
         ci30p=y_median, ci30n=y_median,
-        fuzz_size=0.01, fuzz_n=1,
+        fuzz_size=0.01, color_levels=1,
         color=median_line_color,
         median_line_color=median_line_color,
         median_line_width=median_line_width,
@@ -168,7 +168,7 @@ if __name__ == '__main__':
         ci95p=y_p_95, ci95n=y_n_95,
         ci60p=y_p_60, ci60n=y_n_60,
         ci30p=y_p_30, ci30n=y_n_30,
-        fuzz_size=1, fuzz_n=50,
+        fuzz_size=1, color_levels=50,
         color=color,
         median_line_color=median_line_color,
         median_line_width=median_line_width,
@@ -179,8 +179,8 @@ if __name__ == '__main__':
     # Full fuzz
     dens_chart = DensPlotly(
         x=x, y=y_median,
-        ci95p=y_p_95, ci95n=y_n_95,
-        fuzz_n=10,
+        ci95p=y_p_95,
+        color_levels=20,
         output='offline',
         color=color,
         median_line_color=median_line_color,
@@ -193,4 +193,3 @@ if __name__ == '__main__':
     # standard_error.plot()
     dens_chart.plot()
     # fuzzy_fan.plot()
-    print('finish')

@@ -85,21 +85,21 @@ class CoreFuzzy(unittest.TestCase):
             ci95p=y_p_95, ci95n=y_n_95,
             ci60p=y_p_60, ci60n=y_n_60,
             ci30p=y_p_30, ci30n=y_n_30,
-            fuzz_size=0.2, fuzz_n=10,
+            fuzz_size=0.2, color_levels=10,
         )
         self.Fuzz02 = FuzzyPlotly(
             x_sample_values, y_median,
             ci95p=y_p_95, ci95n=y_n_95,
             ci60p=y_p_60, ci60n=y_n_60,
             ci30p=y_p_30, ci30n=y_n_30,
-            fuzz_size=0.2, fuzz_n=10, color='#00FFFF'
+            fuzz_size=0.2, color_levels=10, color='#00FFFF'
         )
         self.Fuzz03 = FuzzyPlotly(
             x_sample_values, y_median,
             ci95p=y_p_95, ci95n=y_n_95,
             ci60p=y_p_60, ci60n=y_n_60,
             ci30p=y_p_30, ci30n=y_n_30,
-            fuzz_size=0.2, fuzz_n=10, color='#800000'
+            fuzz_size=0.2, color_levels=10, color='#800000'
         )
 
     def test_hex_to_rgb(self):

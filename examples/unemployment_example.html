@@ -13543,7 +13543,7 @@ div#notebook {
 <span class="n">dens_chart</span> <span class="o">=</span> <span class="n">DensPlotly</span><span class="p">(</span>
     <span class="n">x</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">y_median</span><span class="p">,</span>
     <span class="n">ci95p</span><span class="o">=</span><span class="n">y_p_95</span><span class="p">,</span> <span class="n">ci95n</span><span class="o">=</span><span class="n">y_n_95</span><span class="p">,</span>
-    <span class="n">fuzz_n</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+    <span class="n">color_levels</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
     <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span>
     <span class="n">median_line_color</span><span class="o">=</span><span class="s1">&#39;#8b4513&#39;</span><span class="p">,</span>
     <span class="n">median_line_width</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
@@ -13592,8 +13592,8 @@ div#notebook {
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Plot-2.5---Fuzzy-fan-chart">Plot 2.5 - Fuzzy fan chart<a class="anchor-link" href="#Plot-2.5---Fuzzy-fan-chart">&#182;</a></h3><p>This is a fan chart where the boundaries between the bands has been blurred to emphasise that the uncertainty. The original bands are stll distinguishable in magnification.</p>
-<p>You may perceive more bands than are actually drawn when using this representation. Your perception of these visual artefacts will vary with parameters such as colour, fuzz_size (The width of the blurring), fuzz_n (The number of colour levels used to implement the blur).</p>
-<p>Note: Depending on your machine, a chart using a fuzz_n value above 70 will take a long time to display.</p>
+<p>You may perceive more bands than are actually drawn when using this representation. Your perception of these visual artefacts will vary with parameters such as colour, fuzz_size (The width of the blurring), color_levels (The number of colour levels used to implement the blur).</p>
+<p>Note: Depending on your machine, a chart using a color_levels value above 70 will take a long time to display.</p>
 
 </div>
 </div>
@@ -13610,7 +13610,7 @@ div#notebook {
     <span class="n">ci95p</span><span class="o">=</span><span class="n">y_p_95</span><span class="p">,</span> <span class="n">ci95n</span><span class="o">=</span><span class="n">y_n_95</span><span class="p">,</span>
     <span class="n">ci60p</span><span class="o">=</span><span class="n">y_p_60</span><span class="p">,</span> <span class="n">ci60n</span><span class="o">=</span><span class="n">y_n_60</span><span class="p">,</span>
     <span class="n">ci30p</span><span class="o">=</span><span class="n">y_p_30</span><span class="p">,</span> <span class="n">ci30n</span><span class="o">=</span><span class="n">y_n_30</span><span class="p">,</span>
-    <span class="n">fuzz_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fuzz_n</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">fuzz_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">color_levels</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
     <span class="n">layout</span><span class="o">=</span><span class="n">layout</span><span class="p">,</span>
 <span class="p">)</span>
 
