@@ -118,7 +118,7 @@ if __name__ == '__main__':
             'showline': True,
             'tickmode': 'array',
             'ticks': 'outside',
-            'mirror': True,
+            'mirrormirror': True,
             'tickwidth': 2,
 
         },
@@ -178,9 +178,9 @@ if __name__ == '__main__':
     # DensPlotly. plotting pdf.
     # Full fuzz
     dens_chart = DensPlotly(
-        x_list=x, y_list=y_median,
+        x=x, y=y_median,
         ci95p=y_p_95, ci95n=y_n_95,
-        fuzz_n=100,
+        fuzz_n=1,
         output='offline',
         color=color,
         median_line_color=median_line_color,
@@ -191,6 +191,6 @@ if __name__ == '__main__':
     # median_only.plot()
     # solid_ci.plot()
     # standard_error.plot()
-    # dens_chart.plot()
-    fuzzy_fan.plot()
+    dens_chart.plot()
+    # fuzzy_fan.plot()
     print('finish')
