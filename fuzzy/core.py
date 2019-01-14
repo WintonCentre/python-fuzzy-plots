@@ -6,12 +6,12 @@ from scipy.stats import norm
 
 
 class BasePlotly:
-    def __init__(self, x_list, y_list, ci95p, ci95n,
+    def __init__(self, x, y, ci95p, ci95n,
                  fuzz_size, fuzz_n, color='#4286f4',
                  median_line=True, median_line_color='#000000', median_line_width=1,
                  layout={'showlegend': False}, figs=[], output="auto"):
-        self.x_list = x_list
-        self.y_list = y_list
+        self.x_list = x
+        self.y_list = y
         self.ci95p = ci95p
         self.ci95n = ci95n
         self.fuzz_size = fuzz_size
@@ -157,17 +157,6 @@ class BasePlotly:
             self.data += self.figs
         self.plotly_plot()
 
-    def write_image(self, filename):
-        """
-        Runs all internal logic to create and plot chart.
-        """
-        self.create_data()
-        if self.median_line:
-            self.create_median()
-        if self.figs:
-            self.data += self.figs
-        pio.write_image(self.data, filename)
-
     def export(self):
         """
         Runs all internal logic to create and returns plotly data structure.
@@ -181,19 +170,19 @@ class BasePlotly:
 
 
 class FuzzyPlotly(BasePlotly):
-    def __init__(self, x_list, y_list,
+    def __init__(self, x, y,
                  ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
                  fuzz_size, fuzz_n,
                  color='#4286f4', median_line=True, median_line_color='#000000', median_line_width=1,
                  layout={'showlegend': False}, figs=[], output='auto'
                  ):
-        super(FuzzyPlotly, self).__init__(x_list, y_list,
+        super(FuzzyPlotly, self).__init__(x, y,
                                           ci95p, ci95n, ci60p, ci60n, ci30p, ci30n,
                                           fuzz_size, fuzz_n,
                                           # layout, figs,
                                           )
-        self.x_list = x_list
-        self.y_list = y_list
+        self.x_list = x
+        self.y_list = y
         self.ci95p = ci95p
         self.ci95n = ci95n
         self.ci60p = ci60p
@@ -497,14 +486,14 @@ class FuzzyPlotly(BasePlotly):
 
 # For full fuzz
 class DensPlotly(BasePlotly):
-    def __init__(self, x_list, y_list, ci95p, ci95n,
+    def __init__(self, x, y, ci95p, ci95n,
                  fuzz_n, color='#4286f4',
                  median_line=True, median_line_color='#000000', median_line_width=1,
                  layout={'showlegend': False}, figs=[], output='auto'):
         fuzz_size = 1
-        super(DensPlotly, self).__init__(x_list, y_list, ci95p, ci95n, fuzz_size, fuzz_n)
-        self.x_list = x_list
-        self.y_list = y_list
+        super(DensPlotly, self).__init__(x, y, ci95p, ci95n, fuzz_size, fuzz_n)
+        self.x_list = x
+        self.y_list = y
         self.ci95p = ci95p
         self.ci95n = ci95n
         self.fuzz_size = fuzz_size

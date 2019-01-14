@@ -1,40 +1,29 @@
 # Uncertainty Plots with python and plotly.
 Fan charts and their variations explored by the Winton Centre for Risk and Evidence Communication. Similar to fan chart by Office for National Statistics.
 
-![alt text](https://raw.githubusercontent.com/WintonCentre/python-fuzzy-plots/master/example_images/01-dens.png)
+Solid fan chart example
+![Fan plot](example_images/03-fan.png)
 
+Standard error chart example
+![Standard error plot](example_images/02-ci.png)
 
-Creates fuzzy boundaries around confidence interval at 30%, 60%, 95%.
+Density chart example
+![Density plot](example_images/01-dens.png)
+
+Fuzzy fan chart example
+![Fuzzy fan plot](example_images/04-fuzzy-fan.png)
+
+Fuzzy fan Zoomed
+![Fuzzy fan plot](example_images/04.1-zoomed.png)
+
 
 ## Prerequisites
 Python 3.4+
 
-## Quick start
-Import module and use sample values to create a plot.
+## Usage and Examples - Jupyter Notebook
+Best way to see usage are [jupyter notebook examples](https://github.com/WintonCentre/python-fuzzy-plots/blob/master/examples/unemployment_example.ipynb) (Viewable from github).
 
-In terminal type
-`pip install .`
-
-Create a file "example.py" with the code below
-```
-# Import the module
-from fuzzy.core import StandardErrorPlot
-
-standard_error = StandardErrorPlot(
-    x, y_median,
-    ci95p=y_p_95, ci95n=y_n_95,
-    layout=layout,
-)
-
-standard_error.plot()
-```
-In terminal execute the file.
-
-`python example.py`
-
-## Jupyter Notebook
-Fastest way to see examples are to startup jupyer notebook and running "sample.ipynb" provided.
-
+Local copy can also be run which allows modification.
 In terminal:
 ```
 pip install jupyter
@@ -67,78 +56,89 @@ In terminal type: `pip install .`
 
 ### Usage
 
-#### Running
+#### Basic Plot
 
-Create a file "example.py" with the code below
+Create a python with the code below.
+Provide your own values to plot to parameter.
 ```
 # Import the module
-from fuzzy.fuzzy_main import FuzzyPlotly, x_sample_values, y_sample_values, std
+from fuzzy.core import FanPlotly
 
-# Create a plot using sample values.
-my_plt = FuzzyPlotly(x_sample_values, y_sample_values, std)
-my_plt.plot()
+solid_ci = FanPlotly(
+    x, y_median,
+    ci95p=y_p_95, ci95n=y_n_95,
+    ci60p=y_p_60, ci60n=y_n_60,
+    ci30p=y_p_30, ci30n=y_n_30,
+)
+
+# Plot
+solid_ci.plot()
+
 ```
 In terminal execute the file.
 
-`python example.py`
+## Classes
 
-#### Basic Plot
-FuzzyPlotly(x_list, y_list, std_list, figs=[], output='auto')
+### Solid Fan chart
+`FanPlotly(x, y, ci95p, ci95n, ci60p, ci60n, ci30p, ci30n, fuzz_size, fuzz_n, color='#4286f4', median_line=True, median_line_color='#000000', median_line_width=1, layout={'showlegend': False}, figs=[], output='auto')`
 
-x_list, y_list, std_list are list values to plot.
+Required parameters
+- x: x-axis values in a list.
+- y: y-axis median values in a list.
+- ci95p: Upper values of 95% confidence interval in a list.
+- ci95n: Lower values of 95% confidence interval in a list.
+- ci60p: Upper values of 60% confidence interval in a list.
+- ci60n: Lower values of 60% confidence interval in a list.
+- ci30p: Upper values of 30% confidence interval in a list.
+- ci30n: Lower values of 30% confidence interval in a list.
+- fuzz_size: The width of the blurring. Takes integer value between 0-1.
+- fuzz_n: The number of colour levels used to implement the blur. Takes integer value between 0-150.
 
-`FuzzyPlotly([1,2,3,4,5], [2,6,8,6,5], [1,2,3,2,2]).plot()`
+### Density chart
 
-#### Additional plot
-FuzzyPlotly allows user to add any plots plotly supports.
+`DensPlotly(x, y, ci95p, ci95n, fuzz_n, color='#4286f4', median_line=True, median_line_color='#000000', median_line_width=1, layout={'showlegend': False}, figs=[], output='auto')`
 
-```
-# First create a plotly figure
-new_fig_1 = {
-         'marker': {'color': 'red', 'size': 10, 'symbol': 104},
-         'mode': 'markers+lines',
-         'name': '1st Trace',
-         'text': ['one', 'two', 'three'],
-         'type': 'scatter',
-         'x': [1, 2, 3],
-         'y': [4, 2, 1]
-     }
+Required parameters
+- x: x-axis values in a list.
+- y: y-axis median values in a list.
+- ci95p: Upper values of 95% confidence interval in a list.
+- ci95n: Lower values of 95% confidence interval in a list.
 
-# Create another plotly figure (Optional)
-new_fig_2 = {
-         'marker': {'color': 'red', 'size': 10, 'symbol': 104},
-         'mode': 'markers+lines',
-         'name': '1st Trace',
-         'text': ['one', 'two', 'three'],
-         'type': 'scatter',
-         'x': [5, 6, 7],
-         'y': [3, 4, 1]
-     }
-```
+### Standard error chart
 
-##### Additional plot - Method 1
-figs allow user to add additional plot(s). Pass it as list to figs.
+`StandardErrorPlot(x, y, ci95p, ci95n, fuzz_n, color='#4286f4', median_line=True, median_line_color='#000000', median_line_width=1, layout={'showlegend': False}, figs=[], output='auto')`
 
-```
-# Pass plots created above as parameter to figs
-my_plt = FuzzyPlotly([1,2,3,4,5], [2,6,8,6,5], [1,2,3,2,2], figs=[new_fig_1, new_fig_2])
-my_plt.plot()
-```
+Required parameters
+- x: x-axis values in a list.
+- y: y-axis median values in a list.
+- ci95p: Upper values of 95% confidence interval in a list.
+- ci95n: Lower values of 95% confidence interval in a list.
 
-##### Additional plot - Method 2
-Alternatively user can simple take out plotly data structure FuzzyPlotly has generated using .data() method plot it standard plotly way.
 
-```
-# Get fuzzy data through .data() method
-fuzzy_data = FuzzyPlotly([1,2,3,4,5], [2,6,8,6,5], [1,2,3,2,2]).data()
+### Fuzzy fan chart
+`FuzzyPlotly(x, y, ci95p, ci95n, ci60p, ci60n, ci30p, ci30n, fuzz_size, fuzz_n, color='#4286f4', median_line=True, median_line_color='#000000', median_line_width=1, layout={'showlegend': False}, figs=[], output='auto')`
 
-# Append additional plot(s) to the list
-my_data = fuzzy_data + [new_fig_1, new_fig_2]
+Required parameters
+- x: x-axis values in a list.
+- y: y-axis median values in a list.
+- ci95p: Upper values of 95% confidence interval in a list.
+- ci95n: Lower values of 95% confidence interval in a list.
+- ci60p: Upper values of 60% confidence interval in a list.
+- ci60n: Lower values of 60% confidence interval in a list.
+- ci30p: Upper values of 30% confidence interval in a list.
+- ci30n: Lower values of 30% confidence interval in a list.
+- fuzz_size: The width of the blurring. Takes integer value between 0-1.
+- fuzz_n: The number of colour levels used to implement the blur. Takes integer value between 0-150.
 
-# Plot using plotly
-plotly.offline.plot(data, filename='fuzzy_dev_plt')
+### Shared optional parameters.
 
-```
+- color: Colour of fans/confidence interval. Takes in a hex value in string. Default value is #4286f4. Automatically determines colour based on confidence interval area.
+- layout: [Plotly layout](https://plot.ly/python/reference/#layout) object to configure layout of chart.
+- median_line: True/False to enable or disable median line. Default value is True.
+- median_line_color: Colour of median line. Takes in a hex value in string. Default value is #000000.
+- median_line_width: Thickness of median line. Takes in integer. Default value is 1.
+- figs: Takes in plotly data structures to add additional charts. Pass in as a list if there are multiple figures to plot.
+
 
 ## Other Options
 
