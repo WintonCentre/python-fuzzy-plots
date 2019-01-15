@@ -6,9 +6,9 @@ long_description = '''Fan charts and their variations explored by the Winton Cen
  '''
 
 setup(
-      name='fuzzyplotly',
-      version='1.0',
-      description='Fanchart and various other uncertainty charts.',
+      name='fuzzy-plotly',
+      version='1.0.1',
+      description='Fan chart and various other uncertainty charts.',
       long_description=long_description,
       url='https://github.com/WintonCentre/python-fuzzy-plots',
       author='Jin Park',
