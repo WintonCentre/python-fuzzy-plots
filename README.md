@@ -20,8 +20,31 @@ Fuzzy fan - Zoomed
 ## Prerequisites
 Python 3.4+
 
-## Usage and Examples - Jupyter Notebook
+## Usage and Examples
+In examples folder there are sample files which can be used to plotting straight away.
+
+There is a UK Unemployment 2013-2018 dataset as a sample dataset (uk_unemployment_2013-2018.csv).
+
+unemployment.py contain example code of various charts illustrated above.
+
+### Running example code
+
+To run unemployment.py, download unemployment.py and uk_unemployment_2013-2018.csv.
+
+Download fuzzy-plotly `pip install fuzzy-plotly`
+
+Pandas is used for data manipulation / cleaning but it is not required outside of example.
+
+`pip install pandas`
+
+`python3 unemployment.py` or `python unemployment.py`
+
+Depending on the machine configuration.
+
+### Jupyter Notebook
 Best way to see usage is through the [jupyter notebook examples](https://nbviewer.jupyter.org/github/WintonCentre/python-fuzzy-plots/blob/master/examples/unemployment_example.ipynb).
+
+Jupyter notebook file can be downloaded from "unemployment_example.ipynb" om examples folder.
 
 To access a local editable copy in Jupyter notebooks, you may need to install Jupyter first.
 In a terminal:
@@ -30,6 +53,7 @@ pip install jupyter
 
 jupyter notebook
 ``` 
+
 
 ## Getting started
 

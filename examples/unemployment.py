@@ -175,8 +175,6 @@ if __name__ == '__main__':
         layout=layout,
     )
 
-    # DensPlotly. plotting pdf.
-    # Full fuzz
     dens_chart = DensPlotly(
         x=x, y=y_median,
         ci95p=y_p_95,
