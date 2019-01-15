@@ -50,9 +50,8 @@ In terminal:
 ### Installation
 
 Install this module using pip.
-In terminal type: `pip install .`
- 
- (TODO FUTURE: `pip install fuzzyplots`)
+In terminal type: `pip install fuzzy-plotly`
+
 
 ### Usage
 
